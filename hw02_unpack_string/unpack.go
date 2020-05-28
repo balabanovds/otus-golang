@@ -28,7 +28,8 @@ func (t *token) eval() error {
 		if unicode.IsDigit(t.char) {
 			return ErrInvalidString
 		}
-		if unicode.IsLetter(t.char) {
+
+		if t.char != '\\' {
 			t.str = string(t.char)
 		}
 		return nil
