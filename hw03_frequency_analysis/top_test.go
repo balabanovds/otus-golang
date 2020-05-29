@@ -6,9 +6,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-// Change to true if needed
-var taskWithAsteriskIsCompleted = false
-
 var text = `Как видите, он  спускается  по  лестнице  вслед  за  своим
 	другом   Кристофером   Робином,   головой   вниз,  пересчитывая
 	ступеньки собственным затылком:  бум-бум-бум.  Другого  способа
@@ -45,16 +42,31 @@ var text = `Как видите, он  спускается  по  лестни�
 
 func TestTop10(t *testing.T) {
 	t.Run("no words in empty string", func(t *testing.T) {
-		assert.Len(t, Top10(""), 0)
+		top, err := Top10("", false)
+		assert.NoError(t, err)
+		assert.Len(t, top, 0)
 	})
 
-	t.Run("positive test", func(t *testing.T) {
-		if taskWithAsteriskIsCompleted {
-			expected := []string{"он", "а", "и", "что", "ты", "не", "если", "то", "его", "кристофер", "робин", "в"}
-			assert.Subset(t, expected, Top10(text))
-		} else {
-			expected := []string{"он", "и", "а", "что", "ты", "не", "если", "-", "то", "Кристофер"}
-			assert.ElementsMatch(t, expected, Top10(text))
-		}
+	t.Run("positive test w/o asterisk", func(t *testing.T) {
+		expected := []string{"он", "и", "а", "что", "ты", "не", "если", "-", "то", "Кристофер"}
+		top, err := Top10(text, false)
+		assert.NoError(t, err)
+		assert.ElementsMatch(t, expected, top)
+	})
+
+	t.Run("positive test w/ asterisk", func(t *testing.T) {
+		expected := []string{"он", "а", "и", "что", "ты", "не", "если", "то", "его", "кристофер", "робин", "в"}
+		top, err := Top10(text, true)
+		assert.NoError(t, err)
+		assert.Subset(t, expected, top)
+	})
+
+}
+
+func TestNewParser(t *testing.T) {
+	t.Run("wrong pattern returns error", func(t *testing.T) {
+		_, err := newParser(`[\p{L}\d`, false)
+		assert.Error(t, err)
+		assert.EqualError(t, err, ErrRegExCompilation.Error())
 	})
 }
