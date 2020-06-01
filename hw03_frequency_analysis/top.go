@@ -2,6 +2,7 @@ package hw03_frequency_analysis //nolint:golint,stylecheck
 
 import (
 	"errors"
+	"fmt"
 	"regexp"
 	"sort"
 	"strings"
@@ -26,7 +27,7 @@ type parser struct {
 func newParser(pattern string, star bool) (*parser, error) {
 	reg, err := regexp.Compile(pattern)
 	if err != nil {
-		return nil, ErrRegExCompilation
+		return nil, fmt.Errorf("%w: %v", ErrRegExCompilation, err)
 	}
 
 	return &parser{

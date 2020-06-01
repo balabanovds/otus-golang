@@ -1,6 +1,7 @@
 package hw03_frequency_analysis //nolint:golint
 
 import (
+	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -67,6 +68,6 @@ func TestNewParser(t *testing.T) {
 	t.Run("wrong pattern returns error", func(t *testing.T) {
 		_, err := newParser(`[\p{L}\d`, false)
 		assert.Error(t, err)
-		assert.EqualError(t, err, ErrRegExCompilation.Error())
+		assert.True(t, errors.Is(err, ErrRegExCompilation))
 	})
 }
