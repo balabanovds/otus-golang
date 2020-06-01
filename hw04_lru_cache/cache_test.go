@@ -6,6 +6,7 @@ import (
 	"sync"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -50,12 +51,35 @@ func TestCache(t *testing.T) {
 	})
 
 	t.Run("purge logic", func(t *testing.T) {
-		// Write me
+		t.Run("purge first element", func(t *testing.T) {
+			c := initCache(t)
+
+			was := c.Set("d", 4)
+			assert.False(t, was)
+
+			a, ok := c.Get("a")
+			assert.False(t, ok)
+			assert.Nil(t, a)
+		})
+
+		t.Run("purge less used element", func(t *testing.T) {
+			c := initCache(t)
+
+			_ = c.Set("a", 4)
+			_, _ = c.Get("c")
+
+			was := c.Set("d", 4)
+			assert.False(t, was)
+
+			b, ok := c.Get("b")
+			assert.False(t, ok)
+			assert.Nil(t, b)
+		})
 	})
 }
 
 func TestCacheMultithreading(t *testing.T) {
-	t.Skip() // Remove if task with asterisk completed
+	// t.Skip() // Remove if task with asterisk completed
 
 	c := NewCache(10)
 	wg := &sync.WaitGroup{}
@@ -64,16 +88,33 @@ func TestCacheMultithreading(t *testing.T) {
 	go func() {
 		defer wg.Done()
 		for i := 0; i < 1_000_000; i++ {
-			c.Set(Key(strconv.Itoa(i)), i)
+			c.Set(strconv.Itoa(i), i)
 		}
 	}()
 
 	go func() {
 		defer wg.Done()
 		for i := 0; i < 1_000_000; i++ {
-			c.Get(Key(strconv.Itoa(rand.Intn(1_000_000))))
+			c.Get(strconv.Itoa(rand.Intn(1_000_000)))
 		}
 	}()
 
 	wg.Wait()
+}
+
+func initCache(t *testing.T) Cache {
+	t.Helper()
+
+	c := NewCache(3)
+
+	was := c.Set("a", 1)
+	assert.False(t, was)
+
+	was = c.Set("b", 2)
+	assert.False(t, was)
+
+	was = c.Set("c", 2)
+	assert.False(t, was)
+
+	return c
 }
