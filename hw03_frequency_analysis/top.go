@@ -52,7 +52,7 @@ func (p *parser) parse(str string) {
 
 func (p *parser) rate(n int) []string {
 	if len(p.data) == 0 {
-		return []string{}
+		return nil
 	}
 
 	p.rating = make([]token, 0, len(p.data))
@@ -68,7 +68,7 @@ func (p *parser) rate(n int) []string {
 		return p.rating[i].counter > p.rating[j].counter
 	})
 
-	var r []string
+	r := make([]string, 0, n)
 	for i := 0; i < n; i++ {
 		r = append(r, p.rating[i].value)
 	}

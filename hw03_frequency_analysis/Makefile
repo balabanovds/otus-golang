@@ -3,3 +3,4 @@ test: lint
 
 lint:
 	golangci-lint run ./...
+	
