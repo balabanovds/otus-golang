@@ -6,7 +6,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/cheggaaa/pb"
+	"github.com/balabanovds/otus-golang/hw07_file_copying/pkg/pb"
 )
 
 var (
@@ -37,9 +37,9 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 	fmt.Printf("Offset %d bytes, limit %d bytes\n", offset, limit)
 	fmt.Printf("Consider to copy %d bytes\n", src.copySize)
 
-	var p *pb.ProgressBar
+	p := pb.New(src.copySize)
 	if progress {
-		p = pb.Start64(src.copySize)
+		p.Start()
 	}
 
 	for {
@@ -61,8 +61,8 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 		}
 
 		if progress {
-			p.Increment()
-			time.Sleep(100 * time.Microsecond)
+			p.Add(int64(n))
+			time.Sleep(time.Millisecond)
 		}
 	}
 

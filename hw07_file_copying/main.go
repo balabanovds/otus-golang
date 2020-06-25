@@ -13,12 +13,12 @@ var (
 )
 
 func init() {
-	flag.StringVar(&from, "from", "", "file to read from")
-	flag.StringVar(&to, "to", "", "file to write to")
+	flag.StringVar(&from, "from", "", "file to read from (mandatory)")
+	flag.StringVar(&to, "to", "", "file to write to (mandatory)")
 	flag.Int64Var(&limit, "limit", 0, "limit of bytes to copy")
 	flag.Int64Var(&offset, "offset", 0, "offset in input file")
 	flag.Int64Var(&chunkSize, "bs", 1, "chuck of bytes to copy within one iteration")
-	flag.BoolVar(&append, "append", false, "append to destination")
+	flag.BoolVar(&append, "append", false, "append to destination, by default it overwrites destination")
 	flag.BoolVar(&progress, "progress", false, "show progress in stdout")
 }
 
