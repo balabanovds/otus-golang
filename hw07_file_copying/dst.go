@@ -7,7 +7,6 @@ import (
 
 type dst struct {
 	file   *os.File
-	name   string
 	offset int64
 }
 
@@ -22,7 +21,6 @@ func newDst(filename string) (*dst, error) {
 			}
 			return &dst{
 				file: fh,
-				name: filename,
 			}, nil
 		}
 		return nil, err
@@ -51,7 +49,6 @@ func newDst(filename string) (*dst, error) {
 
 	return &dst{
 		file:   fh,
-		name:   filename,
 		offset: offset,
 	}, nil
 }

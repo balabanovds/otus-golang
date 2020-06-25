@@ -7,7 +7,6 @@ import (
 
 type src struct {
 	file     *os.File
-	name     string
 	copySize int64
 	offset   int64
 }
@@ -43,7 +42,6 @@ func newSrc(filename string, offset, limit int64) (*src, error) {
 
 	return &src{
 		file:     fh,
-		name:     filename,
 		copySize: copySize,
 		offset:   offset,
 	}, nil
