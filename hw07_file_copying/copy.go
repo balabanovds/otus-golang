@@ -2,14 +2,75 @@ package main
 
 import (
 	"errors"
+	"fmt"
+	"io"
+	"time"
+
+	"github.com/cheggaaa/pb"
 )
 
 var (
+	ErrFileNotExists         = errors.New("file not exists")
 	ErrUnsupportedFile       = errors.New("unsupported file")
 	ErrOffsetExceedsFileSize = errors.New("offset exceeds file size")
 )
 
 func Copy(fromPath string, toPath string, offset, limit int64) error {
-	// Place your code here
+	src, err := newSrc(fromPath, offset, limit)
+	if err != nil {
+		return err
+	}
+	defer src.file.Close()
+
+	dst, err := newDst(toPath)
+	if err != nil {
+		return err
+	}
+	defer dst.file.Close()
+
+	buf := make([]byte, chunkSize)
+
+	var n int
+	position := offset
+
+	fmt.Printf("Copying from '%s', to '%s'\n", fromPath, toPath)
+	fmt.Printf("Offset %d bytes, limit %d bytes\n", offset, limit)
+	fmt.Printf("Consider to copy %d bytes\n", src.copySize)
+
+	var p *pb.ProgressBar
+	if progress {
+		p = pb.Start64(src.copySize)
+	}
+
+	for {
+		position += int64(n)
+		if position > offset+src.copySize {
+			break
+		}
+
+		n, err = src.file.ReadAt(buf, position)
+		if err != nil && err != io.EOF {
+			return err
+		}
+		if n == 0 {
+			break
+		}
+
+		if _, err = dst.file.Write(buf[:n]); err != nil {
+			return err
+		}
+
+		if progress {
+			p.Increment()
+			time.Sleep(100 * time.Microsecond)
+		}
+	}
+
+	if progress {
+		p.Finish()
+	}
+
+	fmt.Println("Copy complete")
+
 	return nil
 }
