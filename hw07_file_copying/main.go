@@ -9,7 +9,7 @@ import (
 var (
 	from, to                 string
 	limit, offset, chunkSize int64
-	append, progress         bool
+	progress                 bool
 )
 
 func init() {
@@ -18,7 +18,6 @@ func init() {
 	flag.Int64Var(&limit, "limit", 0, "limit of bytes to copy")
 	flag.Int64Var(&offset, "offset", 0, "offset in input file")
 	flag.Int64Var(&chunkSize, "bs", 1, "chuck of bytes to copy within one iteration")
-	flag.BoolVar(&append, "append", false, "append to destination, by default it overwrites destination")
 	flag.BoolVar(&progress, "progress", false, "show progress in stdout")
 }
 

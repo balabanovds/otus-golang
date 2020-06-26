@@ -35,13 +35,13 @@ func newDst(filename string) (*dst, error) {
 		return nil, err
 	}
 
-	if !append {
-		_ = fh.Truncate(0)
+	err = fh.Truncate(0)
+	if err != nil {
+		fh.Close()
+		return nil, err
 	}
 
-	offset := fileInfo.Size()
-
-	_, err = fh.Seek(offset, io.SeekCurrent)
+	_, err = fh.Seek(0, io.SeekCurrent)
 	if err != nil {
 		fh.Close()
 		return nil, err

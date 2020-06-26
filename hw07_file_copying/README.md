@@ -29,8 +29,6 @@
 
 ```
 Usage of build/go-dd:
-  -append
-        append to destination, by default it overwrites destination
   -bs int
         chuck of bytes to copy within one iteration (default 1)
   -from string

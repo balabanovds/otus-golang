@@ -28,9 +28,6 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 	}
 	defer dst.file.Close()
 
-	buf := make([]byte, chunkSize)
-
-	var n int
 	position := offset
 
 	fmt.Printf("Copying from '%s', to '%s'\n", fromPath, toPath)
@@ -38,17 +35,11 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 	fmt.Printf("Consider to copy %d bytes\n", src.copySize)
 
 	p := pb.New(src.copySize)
-	if progress {
-		p.Start()
-	}
+	p.Start()
 
 	for {
-		position += int64(n)
-		if position > offset+src.copySize {
-			break
-		}
+		n, err := io.CopyN(dst.file, src.file, chunkSize)
 
-		n, err = src.file.ReadAt(buf, position)
 		if err != nil && err != io.EOF {
 			return err
 		}
@@ -56,19 +47,16 @@ func Copy(fromPath string, toPath string, offset, limit int64) error {
 			break
 		}
 
-		if _, err = dst.file.Write(buf[:n]); err != nil {
-			return err
+		position += n
+		if position > offset+src.copySize {
+			break
 		}
 
-		if progress {
-			p.Add(int64(n))
-			time.Sleep(time.Millisecond)
-		}
+		p.Add(n)
+		time.Sleep(100 * time.Microsecond)
 	}
 
-	if progress {
-		p.Finish()
-	}
+	p.Finish()
 
 	fmt.Println("Copy complete")
 
