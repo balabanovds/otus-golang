@@ -27,9 +27,9 @@ func TestRunCmd(t *testing.T) {
 
 	tests := []tc{
 		{
-			name:               "General error: too many arguments",
+			name:               "General error",
 			command:            "/bin/bash",
-			args:               []string{"-c", "pwd nowhere"},
+			args:               []string{"-c", "touch /etc"},
 			expectedReturnCode: exitErrGeneral,
 		},
 		{
