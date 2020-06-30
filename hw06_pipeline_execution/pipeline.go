@@ -52,7 +52,11 @@ func (p *pipeline) Exec() Out {
 						return
 					}
 					if data != nil {
-						stageStream <- data
+						select {
+						case <-p.doneStream:
+							return
+						case stageStream <- data:
+						}
 					}
 				}
 			}
