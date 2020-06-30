@@ -21,3 +21,16 @@ func RunCmd(cmd []string, env Environment) (returnCode int) {
 
 	return
 }
+
+func prepareCmdEnv(env Environment) []string {
+	for k, v := range env {
+		if v == "" {
+			os.Unsetenv(k)
+			continue
+		}
+
+		os.Setenv(k, v)
+	}
+
+	return os.Environ()
+}
