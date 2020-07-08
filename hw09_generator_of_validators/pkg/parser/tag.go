@@ -1,11 +1,9 @@
-package main
+package parser
 
 import (
 	"regexp"
 	"strings"
 )
-
-const tagKey = "validate"
 
 type tagType int
 
@@ -15,11 +13,6 @@ const (
 	tIn                    // string, int: value must be in variety
 	tMin                   // int: not less than
 	tMax                   // int: not more than
-)
-
-var (
-	tRegWhole = regexp.MustCompile(`.*` + tagKey + `:"(\S+?)".*`)
-	tRegOne   = regexp.MustCompile(`(\w+):(\S+)`)
 )
 
 type tag struct {
@@ -51,7 +44,10 @@ func newTag(key, val string) (tag, bool) {
 	}, true
 }
 
-func parseTags(str string) []tag {
+func parseTags(str, tagToken string) []tag {
+	tRegWhole := regexp.MustCompile(`.*` + tagToken + `:"(\S+?)".*`)
+	tRegOne := regexp.MustCompile(`(\w+):(\S+)`)
+
 	var tags []tag
 	wholeTag := tRegWhole.FindStringSubmatch(str)
 	if len(wholeTag) < 1 {

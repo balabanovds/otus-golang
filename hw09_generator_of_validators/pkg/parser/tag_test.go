@@ -1,9 +1,11 @@
-package main
+package parser
 
 import (
 	"github.com/stretchr/testify/require"
 	"testing"
 )
+
+const tagToken = "validate"
 
 func TestParseTags(t *testing.T) {
 	type tc struct {
@@ -55,7 +57,7 @@ func TestParseTags(t *testing.T) {
 
 	for _, tst := range tests {
 		t.Run(tst.name, func(t *testing.T) {
-			got := parseTags(tst.in)
+			got := parseTags(tst.in, tagToken)
 
 			require.Equal(t, tst.expected, got)
 		})

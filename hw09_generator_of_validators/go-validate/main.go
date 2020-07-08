@@ -2,9 +2,12 @@ package main
 
 import (
 	"fmt"
+	"github.com/balabanovds/otus-golang/hw09_generator_of_validators/pkg/parser"
 	"log"
 	"os"
 )
+
+const tagToken = "validate"
 
 func main() {
 	if len(os.Args) != 2 {
@@ -18,7 +21,7 @@ func main() {
 		log.Fatalln("wrong file")
 	}
 
-	data, err := parse(filepath)
+	data, err := parser.Parse(filepath, tagToken)
 	if err != nil {
 		log.Fatalln("parser:", err)
 	}
