@@ -15,26 +15,34 @@ const (
 )
 
 type fieldType struct {
-	key   fType
-	value string
+	key      fType
+	declared string
+	root     string
 }
 
-func newType(e ast.Expr) (fieldType, bool) {
-	var value string
+func newType(idents map[string]string, e ast.Expr) (*fieldType, error) {
+	var declared, root string
 
 	switch t := e.(type) {
 	case *ast.Ident:
-		value = t.Name
+		declared = t.Name
 	case *ast.ArrayType:
-		value = "[]" + t.Elt.(*ast.Ident).Name
+		declared = "[]" + t.Elt.(*ast.Ident).Name
 	}
 
-	key := getType(value)
+	key := getType(declared)
 	if key == fUnknown {
-		return fieldType{}, false
+		var ok bool
+		root, ok = idents[declared]
+		if !ok {
+			return nil, ErrParseFailed
+		}
+		key = getType(root)
+	} else {
+		root = declared
 	}
 
-	return fieldType{key, value}, true
+	return &fieldType{key, declared, root}, nil
 }
 
 func getType(key string) fType {

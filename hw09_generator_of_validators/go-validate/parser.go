@@ -5,100 +5,126 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
-	"strings"
 )
 
 var (
-	ErrStructsNotFound = errors.New("parser: structs not found")
+	ErrParseFailed        = errors.New("parser: failed to parse")
+	ErrParseStructs404    = errors.New("parser: structs not found")
+	ErrParseFieldTagEmpty = errors.New("parser: filed tag empty")
 )
 
-type validatedStruct struct {
-	name   string
-	short  string
-	fields []field
+type parsedData struct {
+	packageName string
+	structs     map[string]parsedStruct
+	idents      map[string]string
+	tags        map[tagType]struct{} // this needed to generate imports
 }
 
-func newStruct(name string) validatedStruct {
-	short := strings.ToLower(name)[0:1]
-	return validatedStruct{
-		name:  name,
-		short: short,
+func newData(packageName string) *parsedData {
+	return &parsedData{
+		packageName: packageName,
+		structs:     make(map[string]parsedStruct),
+		idents:      make(map[string]string),
+		tags:        make(map[tagType]struct{}),
 	}
 }
 
-type field struct {
-	name    string
-	typeStr fieldType
-	tags    []tag
+func (d *parsedData) addIdent(name string, ident *ast.Ident) {
+	d.idents[name] = ident.Name
 }
 
-func newField(f *ast.Field) (field, bool) {
-	if f.Tag == nil {
-		return field{}, false
-	}
-	typeStr, ok := newType(f.Type)
-	if !ok {
-		return field{}, false
+func (d *parsedData) addStruct(name string, s *ast.StructType) error {
+	vs := newStruct(name)
+
+	for _, f := range s.Fields.List {
+		vField, err := newField(d.idents, f)
+		if err != nil {
+			// just skip field if tags empty
+			if errors.Is(err, ErrParseFieldTagEmpty) {
+				continue
+			}
+			// if smth weird
+			return err
+		}
+		vs.fields = append(vs.fields, vField)
+
+		// add all tags found for field
+		for _, tag := range vField.tags {
+			d.tags[tag.tType] = struct{}{}
+		}
 	}
 
-	tags := parseTags(f.Tag.Value)
-	if len(tags) == 0 {
-		return field{}, false
+	if len(vs.fields) != 0 {
+		d.structs[name] = vs
 	}
 
-	return field{
-		name:    f.Names[0].Name,
-		typeStr: typeStr,
-		tags:    tags,
-	}, true
+	return nil
 }
 
-func parse(fileName string) (packageName string, structs []validatedStruct, err error) {
+func parse(fileName string) (*parsedData, error) {
 	fset := token.NewFileSet()
 	parseFile, err := parser.ParseFile(fset, fileName, nil, 0)
 	if err != nil {
-		return
+		return nil, err
 	}
 
-	packageName = parseFile.Name.Name
+	data := newData(parseFile.Name.Name)
 
-	structs = inspectForStructs(parseFile)
-
-	if len(structs) == 0 {
-		err = ErrStructsNotFound
-	}
-
-	return
-}
-
-func inspectForStructs(file *ast.File) []validatedStruct {
-	var structName string
-	var structs []validatedStruct
-
-	ast.Inspect(file, func(n ast.Node) bool {
-		switch x := n.(type) {
+	// first - we collect all idents
+	for name, obj := range parseFile.Scope.Objects {
+		switch x := obj.Decl.(*ast.TypeSpec).Type.(type) {
 		case *ast.Ident:
-			structName = x.Name
+			data.addIdent(name, x)
+		}
+	}
+
+	// last - we run ones again to collect all structs
+	for name, obj := range parseFile.Scope.Objects {
+		switch x := obj.Decl.(*ast.TypeSpec).Type.(type) {
 		case *ast.StructType:
-			vs := newStruct(structName)
-
-			for _, f := range x.Fields.List {
-
-				vField, ok := newField(f)
-				if !ok {
-					continue
-				}
-
-				vs.fields = append(vs.fields, vField)
-
-			}
-
-			if len(vs.fields) != 0 {
-				structs = append(structs, vs)
+			err = data.addStruct(name, x)
+			if err != nil {
+				return nil, err
 			}
 		}
-		return true
-	})
+	}
 
-	return structs
+	if len(data.structs) == 0 {
+		return nil, ErrParseStructs404
+	}
+
+	return data, nil
 }
+
+//
+//func inspectForStructs(file *ast.File) []parsedStruct {
+//	var structName string
+//	var structs []parsedStruct
+//
+//	ast.Inspect(file, func(n ast.Node) bool {
+//		switch x := n.(type) {
+//		case *ast.Ident:
+//			structName = x.Name
+//		case *ast.StructType:
+//			vs := newStruct(structName)
+//
+//			for _, f := range x.Fields.List {
+//
+//				vField, ok := newField(f)
+//				if !ok {
+//					continue
+//				}
+//
+//				vs.fields = append(vs.fields, vField)
+//
+//			}
+//
+//			if len(vs.fields) != 0 {
+//				structs = append(structs, vs)
+//			}
+//		}
+//		return true
+//	})
+//
+//	return structs
+//}

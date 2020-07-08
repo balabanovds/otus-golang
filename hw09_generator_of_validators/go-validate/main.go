@@ -12,12 +12,18 @@ func main() {
 		os.Exit(1)
 	}
 
-	packageName, structs, err := parse(os.Args[1])
+	filepath := os.Args[1]
+
+	if fi, err := os.Stat(filepath); err != nil || !fi.Mode().IsRegular() {
+		log.Fatalln("wrong file")
+	}
+
+	data, err := parse(filepath)
 	if err != nil {
 		log.Fatalln("parser:", err)
 	}
 
-	if err := generate(packageName, structs); err != nil {
+	if err := generate(filepath, data); err != nil {
 		log.Fatalln("generator:", err)
 	}
 }
