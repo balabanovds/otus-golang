@@ -1,36 +1,32 @@
 package parser
 
 import (
+	"errors"
 	"go/ast"
 	"strings"
 )
 
-type parsedStruct struct {
-	name   string
-	short  string
-	fields []*field
+var (
+	ErrParseTagsNotValid     = errors.New("parse: tags not valid for field")
+	ErrParseFieldUnknownType = errors.New("parse: field of unknown type")
+)
+
+type ParsedStruct struct {
+	Name   string
+	Short  string
+	Fields []*Field
 }
 
-type field struct {
-	name      string
-	fieldType *fieldType
-	tags      []tag
-}
-
-func newStruct(name string) parsedStruct {
+func newStruct(name string) ParsedStruct {
 	short := strings.ToLower(name)[0:1]
-	return parsedStruct{
-		name:  name,
-		short: short,
+	return ParsedStruct{
+		Name:  name,
+		Short: short,
 	}
 }
 
-func (s *parsedStruct) addField(data ParsedData, f *ast.Field) error {
+func (s *ParsedStruct) addField(data ParsedData, f *ast.Field) error {
 	if f.Tag == nil {
-		return ErrParseFieldTagEmpty
-	}
-	tags := parseTags(f.Tag.Value, data.tagToken)
-	if len(tags) == 0 {
 		return ErrParseFieldTagEmpty
 	}
 
@@ -39,22 +35,30 @@ func (s *parsedStruct) addField(data ParsedData, f *ast.Field) error {
 		return err
 	}
 
-	s.fields = append(s.fields, &field{
-		name:      f.Names[0].Name,
-		fieldType: fType,
-		tags:      tags,
-	})
+	tags := parseTags(f.Tag.Value, data.tagToken, fType.Key)
+	if len(tags) == 0 {
+		return ErrParseFieldTagEmpty
+	}
+
+	field := newField(f.Names[0].Name, fType, tags)
+
+	err = field.validate()
+	if err != nil {
+		return nil
+	}
+
+	s.Fields = append(s.Fields, field)
 
 	return nil
 }
 
-func (s *parsedStruct) grepTags() map[tagType]struct{} {
-	m := make(map[tagType]struct{})
+func (s *ParsedStruct) grepTags() map[TagType]struct{} {
+	m := make(map[TagType]struct{})
 
 	// add all tags found for field
-	for _, f := range s.fields {
-		for _, t := range f.tags {
-			m[t.tType] = struct{}{}
+	for _, f := range s.Fields {
+		for _, t := range f.Tags {
+			m[t.Type] = struct{}{}
 		}
 	}
 

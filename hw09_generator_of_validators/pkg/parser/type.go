@@ -4,23 +4,23 @@ import (
 	"go/ast"
 )
 
-type fType int
+type FType int
 
 const (
-	fUnknown fType = iota
-	fString
-	fInt
-	fSliceString
-	fSliceInt
+	FUnknown FType = iota
+	FString
+	FInt
+	FSliceString
+	FSliceInt
 )
 
-type fieldType struct {
-	key      fType
-	declared string
-	root     string
+type FieldType struct {
+	Key      FType
+	Declared string
+	Root     string
 }
 
-func newType(idents map[string]string, e ast.Expr) (*fieldType, error) {
+func newType(idents map[string]string, e ast.Expr) (*FieldType, error) {
 	var declared, root string
 
 	switch t := e.(type) {
@@ -31,7 +31,7 @@ func newType(idents map[string]string, e ast.Expr) (*fieldType, error) {
 	}
 
 	key := getType(declared)
-	if key == fUnknown {
+	if key == FUnknown {
 		var ok bool
 		root, ok = idents[declared]
 		if !ok {
@@ -42,21 +42,21 @@ func newType(idents map[string]string, e ast.Expr) (*fieldType, error) {
 		root = declared
 	}
 
-	return &fieldType{key, declared, root}, nil
+	return &FieldType{key, declared, root}, nil
 }
 
-func getType(key string) fType {
+func getType(key string) FType {
 	switch key {
 	case "string":
-		return fString
+		return FString
 	case "int":
-		return fInt
+		return FInt
 	case "[]string":
-		return fSliceString
+		return FSliceString
 	case "[]int":
-		return fSliceInt
+		return FSliceInt
 	default:
-		return fUnknown
+		return FUnknown
 	}
 
 }

@@ -2,12 +2,17 @@ package main
 
 import (
 	"fmt"
+	"github.com/balabanovds/otus-golang/hw09_generator_of_validators/internal/generator"
 	"github.com/balabanovds/otus-golang/hw09_generator_of_validators/pkg/parser"
 	"log"
 	"os"
+	"path/filepath"
 )
 
-const tagToken = "validate"
+const (
+	tagToken       = "validate"
+	filenameSuffix = "validation_generated"
+)
 
 func main() {
 	if len(os.Args) != 2 {
@@ -15,18 +20,22 @@ func main() {
 		os.Exit(1)
 	}
 
-	filepath := os.Args[1]
+	filePath := os.Args[1]
 
-	if fi, err := os.Stat(filepath); err != nil || !fi.Mode().IsRegular() {
+	if fi, err := os.Stat(filePath); err != nil || !fi.Mode().IsRegular() {
 		log.Fatalln("wrong file")
 	}
 
-	data, err := parser.Parse(filepath, tagToken)
+	if ext := filepath.Ext(filePath); ext != ".go" {
+		log.Fatalln("wrong file extension")
+	}
+
+	data, err := parser.Parse(filePath, tagToken)
 	if err != nil {
 		log.Fatalln("parser:", err)
 	}
 
-	if err := generate(filepath, data); err != nil {
+	if err := generator.Generate(filePath, filenameSuffix, data); err != nil {
 		log.Fatalln("generator:", err)
 	}
 }

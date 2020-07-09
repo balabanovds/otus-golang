@@ -5,6 +5,7 @@ import (
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"log"
 )
 
 var (
@@ -16,18 +17,18 @@ var (
 type ParsedData struct {
 	PackageName string
 	tagToken    string
-	Structs     map[string]parsedStruct
+	fSet        *token.FileSet
+	Structs     []ParsedStruct
 	Idents      map[string]string
-	Tags        map[tagType]struct{} // this needed to generate imports
+	Tags        map[TagType]struct{} // this needed to generate imports
 }
 
 func newData(packageName, tagToken string) *ParsedData {
 	return &ParsedData{
 		PackageName: packageName,
 		tagToken:    tagToken,
-		Structs:     make(map[string]parsedStruct),
 		Idents:      make(map[string]string),
-		Tags:        make(map[tagType]struct{}),
+		Tags:        make(map[TagType]struct{}),
 	}
 }
 
@@ -45,14 +46,19 @@ func (d *ParsedData) addStruct(name string, s *ast.StructType) error {
 			if errors.Is(err, ErrParseFieldTagEmpty) {
 				continue
 			}
+			if errors.Is(err, ErrParseFieldUnknownType) {
+				// we just print here a warning that we faced with unknown field type
+				log.Printf("at %s: %v\n", d.fSet.Position(f.Pos()), err)
+				continue
+			}
 			// if smth weird
 			return err
 		}
 
 	}
 
-	if len(vs.fields) != 0 {
-		d.Structs[name] = vs
+	if len(vs.Fields) != 0 {
+		d.Structs = append(d.Structs, vs)
 		for tag := range vs.grepTags() {
 			d.Tags[tag] = struct{}{}
 		}
@@ -70,6 +76,7 @@ func Parse(fileName, tagToken string) (*ParsedData, error) {
 	}
 
 	data := newData(parseFile.Name.Name, tagToken)
+	data.fSet = fset
 
 	// first - we collect all idents
 	for name, obj := range parseFile.Scope.Objects {

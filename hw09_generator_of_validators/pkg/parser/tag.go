@@ -5,50 +5,61 @@ import (
 	"strings"
 )
 
-type tagType int
+type TagType int
 
 const (
-	tLen    tagType = iota // string: exact length of string
-	tRegexp                // string: regexp
-	tIn                    // string, int: value must be in variety
-	tMin                   // int: not less than
-	tMax                   // int: not more than
+	// TagLen tag for string: field must be exact length
+	TagLen TagType = iota
+	// TagRegExp tag for string: field must match regexp value
+	TagRegexp
+	// TagInStr for string: field must be in variety of values
+	TagInStr
+	// TagInInt for int: field must be in variety of values
+	TagInInt
+	// TagMin for int: field must be not less than value
+	TagMin
+	// TagMax for int: field must be not more than value
+	TagMax
 )
 
-type tag struct {
-	tType tagType
-	value string
+type Tag struct {
+	Type  TagType
+	Value string
 }
 
-func newTag(key, val string) (tag, bool) {
-	var t tagType
+func newTag(key, val string, fieldType FType) (Tag, bool) {
+	var t TagType
 
 	switch key {
 	case "len":
-		t = tLen
+		t = TagLen
 	case "regexp":
-		t = tRegexp
+		t = TagRegexp
 	case "in":
-		t = tIn
+		if fieldType == FString || fieldType == FSliceString {
+			t = TagInStr
+		} else if fieldType == FInt || fieldType == FSliceInt {
+			t = TagInInt
+		}
 	case "min":
-		t = tMin
+		t = TagMin
 	case "max":
-		t = tMax
+		t = TagMax
 	default:
-		return tag{}, false
+		return Tag{}, false
 	}
 
-	return tag{
-		tType: t,
-		value: val,
+	return Tag{
+		Type:  t,
+		Value: val,
 	}, true
 }
 
-func parseTags(str, tagToken string) []tag {
+func parseTags(str, tagToken string, fieldType FType) []Tag {
 	tRegWhole := regexp.MustCompile(`.*` + tagToken + `:"(\S+?)".*`)
 	tRegOne := regexp.MustCompile(`(\w+):(\S+)`)
 
-	var tags []tag
+	var tags []Tag
 	wholeTag := tRegWhole.FindStringSubmatch(str)
 	if len(wholeTag) < 1 {
 		return tags
@@ -57,7 +68,7 @@ func parseTags(str, tagToken string) []tag {
 	for _, str := range strings.Split(wholeTag[1], "|") {
 		matches := tRegOne.FindStringSubmatch(str)
 
-		t, ok := newTag(matches[1], matches[2])
+		t, ok := newTag(matches[1], matches[2], fieldType)
 		if !ok {
 			continue
 		}
@@ -66,4 +77,15 @@ func parseTags(str, tagToken string) []tag {
 	}
 
 	return tags
+}
+
+func inTags(tags []Tag, tType ...TagType) bool {
+	for _, tag := range tags {
+		for _, t := range tType {
+			if tag.Type == t {
+				return true
+			}
+		}
+	}
+	return false
 }

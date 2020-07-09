@@ -11,45 +11,45 @@ func TestParseTags(t *testing.T) {
 	type tc struct {
 		name     string
 		in       string
-		expected []tag
+		expected []Tag
 	}
 
 	tests := []tc{
 		{
 			name: "simple",
 			in:   `json:"id" validate:"len:36"`,
-			expected: []tag{
+			expected: []Tag{
 				{
-					tType: tLen,
-					value: "36",
+					Type:  TagLen,
+					Value: "36",
 				},
 			},
 		},
 		{
 			name: "with and",
 			in:   `validate:"len:36|min:3"`,
-			expected: []tag{
+			expected: []Tag{
 				{
-					tType: tLen,
-					value: "36",
+					Type:  TagLen,
+					Value: "36",
 				},
 				{
-					tType: tMin,
-					value: "3",
+					Type:  TagMin,
+					Value: "3",
 				},
 			},
 		},
 		{
 			name: "complex",
 			in:   `validate:"regexp:\\d+|len:20"`,
-			expected: []tag{
+			expected: []Tag{
 				{
-					tType: tRegexp,
-					value: `\\d+`,
+					Type:  TagRegexp,
+					Value: `\\d+`,
 				},
 				{
-					tType: tLen,
-					value: "20",
+					Type:  TagLen,
+					Value: "20",
 				},
 			},
 		},
@@ -57,7 +57,7 @@ func TestParseTags(t *testing.T) {
 
 	for _, tst := range tests {
 		t.Run(tst.name, func(t *testing.T) {
-			got := parseTags(tst.in, tagToken)
+			got := parseTags(tst.in, tagToken, FString)
 
 			require.Equal(t, tst.expected, got)
 		})
