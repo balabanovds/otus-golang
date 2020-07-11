@@ -59,7 +59,7 @@ func parseTags(str, tagToken string, fieldType FType) []Tag {
 	tRegWhole := regexp.MustCompile(`.*` + tagToken + `:"(\S+?)".*`)
 	tRegOne := regexp.MustCompile(`(\w+):(\S+)`)
 
-	var tags []Tag
+	tags := make([]Tag, 0)
 	wholeTag := tRegWhole.FindStringSubmatch(str)
 	if len(wholeTag) < 1 {
 		return tags

@@ -1,10 +1,11 @@
 package generator
 
 import (
-	"github.com/balabanovds/otus-golang/hw09_generator_of_validators/pkg/parser"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/balabanovds/otus-golang/hw09_generator_of_validators/pkg/parser"
 )
 
 type templateData struct {

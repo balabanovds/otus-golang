@@ -58,5 +58,4 @@ func getType(key string) FType {
 	default:
 		return FUnknown
 	}
-
 }

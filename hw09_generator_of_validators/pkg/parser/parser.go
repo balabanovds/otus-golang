@@ -54,7 +54,6 @@ func (d *ParsedData) addStruct(name string, s *ast.StructType) error {
 			// if smth weird
 			return err
 		}
-
 	}
 
 	if len(vs.Fields) != 0 {
@@ -67,7 +66,7 @@ func (d *ParsedData) addStruct(name string, s *ast.StructType) error {
 	return nil
 }
 
-// Parse go file for Idents and struct fields containing tagToken
+// Parse go file for Idents and struct fields containing tagToken.
 func Parse(fileName, tagToken string) (*ParsedData, error) {
 	fset := token.NewFileSet()
 	parseFile, err := parser.ParseFile(fset, fileName, nil, 0)
@@ -80,16 +79,14 @@ func Parse(fileName, tagToken string) (*ParsedData, error) {
 
 	// first - we collect all idents
 	for name, obj := range parseFile.Scope.Objects {
-		switch x := obj.Decl.(*ast.TypeSpec).Type.(type) {
-		case *ast.Ident:
+		if x, ok := obj.Decl.(*ast.TypeSpec).Type.(*ast.Ident); ok {
 			data.addIdent(name, x)
 		}
 	}
 
 	// last - we run ones again to collect all structs
 	for name, obj := range parseFile.Scope.Objects {
-		switch x := obj.Decl.(*ast.TypeSpec).Type.(type) {
-		case *ast.StructType:
+		if x, ok := obj.Decl.(*ast.TypeSpec).Type.(*ast.StructType); ok {
 			err = data.addStruct(name, x)
 			if err != nil {
 				return nil, err

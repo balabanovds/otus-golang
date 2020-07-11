@@ -2,11 +2,12 @@ package main
 
 import (
 	"fmt"
-	"github.com/balabanovds/otus-golang/hw09_generator_of_validators/internal/generator"
-	"github.com/balabanovds/otus-golang/hw09_generator_of_validators/pkg/parser"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/balabanovds/otus-golang/hw09_generator_of_validators/internal/generator"
+	"github.com/balabanovds/otus-golang/hw09_generator_of_validators/pkg/parser"
 )
 
 const (

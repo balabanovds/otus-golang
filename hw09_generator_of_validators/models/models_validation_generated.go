@@ -151,36 +151,6 @@ func validateMax(
 }
 
 
-func (a App) Validate() ([]ValidationError, error) {
-	var vErrors []ValidationError
-
-	{
-		vErr, err := validateLen("Version",a.Version,"5")
-		if err != nil {
-			return nil, err
-		}
-		if vErr != nil {
-			vErrors = append(vErrors, *vErr)
-		}
-	}
-
-	return vErrors, nil
-}
-func (r Response) Validate() ([]ValidationError, error) {
-	var vErrors []ValidationError
-
-	{
-		vErr, err := validateInInt("Code",r.Code,"200,404,500")
-		if err != nil {
-			return nil, err
-		}
-		if vErr != nil {
-			vErrors = append(vErrors, *vErr)
-		}
-	}
-
-	return vErrors, nil
-}
 func (u User) Validate() ([]ValidationError, error) {
 	var vErrors []ValidationError
 
@@ -239,6 +209,36 @@ func (u User) Validate() ([]ValidationError, error) {
 				vErrors = append(vErrors, *vErr)
 				break
 			}
+		}
+	}
+
+	return vErrors, nil
+}
+func (a App) Validate() ([]ValidationError, error) {
+	var vErrors []ValidationError
+
+	{
+		vErr, err := validateLen("Version",a.Version,"5")
+		if err != nil {
+			return nil, err
+		}
+		if vErr != nil {
+			vErrors = append(vErrors, *vErr)
+		}
+	}
+
+	return vErrors, nil
+}
+func (r Response) Validate() ([]ValidationError, error) {
+	var vErrors []ValidationError
+
+	{
+		vErr, err := validateInInt("Code",r.Code,"200,404,500")
+		if err != nil {
+			return nil, err
+		}
+		if vErr != nil {
+			vErrors = append(vErrors, *vErr)
 		}
 	}
 
