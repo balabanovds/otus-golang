@@ -5,10 +5,12 @@ import (
 )
 
 type data struct {
-	Func  string
-	Short string
-	Field string
-	Value string
+	Func     string
+	Short    string
+	Field    string
+	Value    string
+	IsOrigin bool
+	Origin   string
 }
 
 func genLen(s p.ParsedStruct) []data {
@@ -61,10 +63,12 @@ func getData(s p.ParsedStruct, fieldType p.FType, tagType p.TagType, fn string) 
 		for _, tag := range field.Tags {
 			if tag.Type == tagType && field.Type.Key == fieldType {
 				result = append(result, data{
-					Func:  fn,
-					Short: s.Short,
-					Field: field.Name,
-					Value: tag.Value,
+					Func:     fn,
+					Short:    s.Short,
+					Field:    field.Name,
+					Value:    tag.Value,
+					IsOrigin: field.Type.Root == field.Type.Declared,
+					Origin:   field.Type.Root,
 				})
 			}
 		}

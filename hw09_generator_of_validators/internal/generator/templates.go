@@ -40,7 +40,13 @@ func ({{.Struct.Short}} {{.Struct.Name}}) Validate() ([]ValidationError, error) 
 	tmplFuncForOne = `
 {{- define "tmplFuncForOne"}}
 	{
-		vErr, err := {{.Func}}("{{.Short}}.{{.Field}}", {{.Short}}.{{.Field}}, "{{.Value}}")
+		vErr, err := {{.Func}}("{{.Field}}", 
+			{{- if not .IsOrigin}}
+				{{- .Origin}}({{.Short}}.{{.Field}}),
+			{{- else}}
+				{{- .Short}}.{{.Field}}, 
+			{{- end -}}
+			"{{.Value}}")
 		if err != nil {
 			return nil, err
 		}
@@ -55,7 +61,13 @@ func ({{.Struct.Short}} {{.Struct.Name}}) Validate() ([]ValidationError, error) 
 {{- define "tmplFuncForSlice"}}
 	{
 		for _, v := range {{.Short}}.{{.Field}} {
-			vErr, err := {{.Func}}("{{.Short}}.{{.Field}}", v, "{{.Value}}")
+			vErr, err := {{.Func}}("{{.Field}}",
+				{{- if not .IsOrigin}}
+					{{- .Origin}}(v),
+				{{- else -}}
+					v,
+				{{- end -}}
+ 				"{{.Value}}")
 			if err != nil {
 				return nil, err
 			}

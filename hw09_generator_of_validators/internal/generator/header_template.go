@@ -23,29 +23,24 @@ var (
 )
 
 type ValidationError struct {
-	fieldName string
-	err       error
+	Field string
+	Err   error
 }
 
 func validateLen(
 	fieldName string,
-	fieldValue interface{},
+	fieldValue string,
 	tagValue string) (*ValidationError, error) {
-
-	v, ok := fieldValue.(string)
-	if !ok {
-		return nil, ErrWrongType
-	}
 
 	i, err := strconv.Atoi(tagValue)
 	if err != nil {
 		return nil, err
 	}
 
-	if len(v) != i {
+	if len(fieldValue) != i {
 		return &ValidationError{
-			fieldName: fieldName,
-			err:       ErrFieldLen,
+			Field: fieldName,
+			Err:   ErrFieldLen,
 		}, nil
 	}
 	return nil, nil
@@ -53,20 +48,15 @@ func validateLen(
 
 func validateRegex(
 	fieldName string,
-	fieldValue interface{},
+	fieldValue string,
 	tagValue string) (*ValidationError, error) {
-
-	v, ok := fieldValue.(string)
-	if !ok {
-		return nil, ErrWrongType
-	}
 
 	r := regexp.MustCompile(tagValue)
 
-	if !r.MatchString(v) {
+	if !r.MatchString(fieldValue) {
 		return &ValidationError{
-			fieldName: fieldName,
-			err:       ErrFieldRegex,
+			Field: fieldName,
+			Err:   ErrFieldRegex,
 		}, nil
 	}
 	return nil, nil
@@ -74,18 +64,13 @@ func validateRegex(
 
 func validateInString(
 	fieldName string,
-	fieldValue interface{},
+	fieldValue string,
 	tagValue string) (*ValidationError, error) {
-
-	v, ok := fieldValue.(string)
-	if !ok {
-		return nil, ErrWrongType
-	}
 
 	var in bool
 
 	for _, s := range strings.Split(tagValue, ",") {
-		if v == s {
+		if fieldValue == s {
 			in = true
 			break
 		}
@@ -93,8 +78,8 @@ func validateInString(
 
 	if !in {
 		return &ValidationError{
-			fieldName: fieldName,
-			err:       ErrFieldIn,
+			Field: fieldName,
+			Err:   ErrFieldIn,
 		}, nil
 	}
 	return nil, nil
@@ -102,13 +87,8 @@ func validateInString(
 
 func validateInInt(
 	fieldName string,
-	fieldValue interface{},
+	fieldValue int,
 	tagValue string) (*ValidationError, error) {
-
-	v, ok := fieldValue.(int)
-	if !ok {
-		return nil, ErrWrongType
-	}
 
 	var in bool
 
@@ -117,7 +97,7 @@ func validateInInt(
 		if err != nil {
 			return nil, err
 		}
-		if v == i {
+		if fieldValue == i {
 			in = true
 			break
 		}
@@ -125,8 +105,8 @@ func validateInInt(
 
 	if !in {
 		return &ValidationError{
-			fieldName: fieldName,
-			err:       ErrFieldIn,
+			Field: fieldName,
+			Err:   ErrFieldIn,
 		}, nil
 	}
 
@@ -135,23 +115,18 @@ func validateInInt(
 
 func validateMin(
 	fieldName string,
-	fieldValue interface{},
+	fieldValue int,
 	tagValue string) (*ValidationError, error) {
-
-	v, ok := fieldValue.(int)
-	if !ok {
-		return nil, ErrWrongType
-	}
 
 	i, err := strconv.Atoi(tagValue)
 	if err != nil {
 		return nil, err
 	}
 
-	if v < i {
+	if fieldValue < i {
 		return &ValidationError{
-			fieldName: fieldName,
-			err:       ErrFieldMin,
+			Field: fieldName,
+			Err:   ErrFieldMin,
 		}, nil
 	}
 
@@ -160,23 +135,18 @@ func validateMin(
 
 func validateMax(
 	fieldName string,
-	fieldValue interface{},
+	fieldValue int,
 	tagValue string) (*ValidationError, error) {
-
-	v, ok := fieldValue.(int)
-	if !ok {
-		return nil, ErrWrongType
-	}
 
 	i, err := strconv.Atoi(tagValue)
 	if err != nil {
 		return nil, err
 	}
 
-	if v > i {
+	if fieldValue > i {
 		return &ValidationError{
-			fieldName: fieldName,
-			err:       ErrFieldMax,
+			Field: fieldName,
+			Err:   ErrFieldMax,
 		}, nil
 	}
 
