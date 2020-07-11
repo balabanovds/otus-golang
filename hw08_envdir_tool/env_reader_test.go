@@ -1,3 +1,5 @@
+// +build !windows
+
 package main
 
 import (
@@ -5,17 +7,24 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
-var expectedMap = Environment{
-	"BAR": "bar",
-	"FOO": `   foo
-with new line`,
-	"HELLO": `"hello"`,
-	"UNSET": "",
-}
+const (
+	BAR string = "bar"
+	FOO string = `   foo
+with new line`
+	HELLO string = `"hello"`
+	UNSET string = ""
+)
 
 func TestReadDir(t *testing.T) {
+	var expectedMap = Environment{
+		"BAR":   BAR,
+		"FOO":   FOO,
+		"HELLO": HELLO,
+		"UNSET": UNSET,
+	}
 	const dir = "./testdata/env"
 	env, err := ReadDir(dir)
 	assert.NoError(t, err)
@@ -38,22 +47,22 @@ func TestReadValue(t *testing.T) {
 			in: `bar
 PLEASE IGNORE SECOND LINE
 `,
-			expected: expectedMap["BAR"],
+			expected: BAR,
 		},
 		{
 			name:     "FOO: replace NUL char with 'new line'",
 			in:       "   foo\x00with new line",
-			expected: expectedMap["FOO"],
+			expected: FOO,
 		},
 		{
 			name:     "HELLO: get value with quotes",
 			in:       `"hello"`,
-			expected: expectedMap["HELLO"],
+			expected: HELLO,
 		},
 		{
 			name:     "UNSET: empty line",
 			in:       "",
-			expected: expectedMap["UNSET"],
+			expected: UNSET,
 		},
 	}
 
@@ -61,7 +70,7 @@ PLEASE IGNORE SECOND LINE
 		t.Run(tst.name, func(t *testing.T) {
 			b := bytes.NewBufferString(tst.in)
 			got, err := readValue(b)
-			assert.NoError(t, err)
+			require.NoError(t, err)
 			assert.Equal(t, tst.expected, got)
 		})
 
