@@ -84,4 +84,4 @@ func merge(s p.ParsedStruct, funcs map[string][]interface{}) struct {
 		Struct p.ParsedStruct
 		Funcs  map[string][]interface{}
 	}{s, funcs}
-}
+} //nolint:gofumpt
