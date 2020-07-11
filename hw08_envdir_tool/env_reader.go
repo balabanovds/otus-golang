@@ -8,7 +8,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path"
+	"path/filepath"
 	"strings"
 )
 
@@ -31,7 +31,7 @@ func ReadDir(dir string) (Environment, error) {
 		}
 
 		// try to read file
-		filename := path.Join(dir, key)
+		filename := filepath.Join(dir, key)
 		file, err := os.Open(filename)
 		if err != nil {
 			log.Printf("failed to open file %s\n", filename)
@@ -64,17 +64,4 @@ func readValue(r io.Reader) (string, error) {
 	line = bytes.ReplaceAll(line, []byte("\x00"), []byte("\n"))
 
 	return string(line), nil
-}
-
-func prepareCmdEnv(env Environment) []string {
-	for k, v := range env {
-		if v == "" {
-			os.Unsetenv(k)
-			continue
-		}
-
-		os.Setenv(k, v)
-	}
-
-	return os.Environ()
 }
