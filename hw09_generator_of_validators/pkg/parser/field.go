@@ -14,7 +14,7 @@ func newField(name string, t *FieldType, tags []Tag) *Field {
 	}
 }
 
-func (f *Field) validate() error {
+func (f *Field) Validate() error {
 	switch f.Type.Key {
 	case FString, FSliceString:
 		if inTags(f.Tags, TagMin, TagMax, TagInInt) {

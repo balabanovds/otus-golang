@@ -42,7 +42,7 @@ func (s *ParsedStruct) addField(data ParsedData, f *ast.Field) error {
 
 	field := newField(f.Names[0].Name, fType, tags)
 
-	err = field.validate()
+	err = field.Validate()
 	if err != nil {
 		return nil
 	}
