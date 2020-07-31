@@ -8,17 +8,17 @@ import (
 type TagType int
 
 const (
-	// TagLen tag for string: field must be exact length
+	// TagLen tag for string: field must be exact length.
 	TagLen TagType = iota
-	// TagRegExp tag for string: field must match regexp value
+	// TagRegExp tag for string: field must match regexp value.
 	TagRegexp
-	// TagInStr for string: field must be in variety of values
+	// TagInStr for string: field must be in variety of values.
 	TagInStr
-	// TagInInt for int: field must be in variety of values
+	// TagInInt for int: field must be in variety of values.
 	TagInInt
-	// TagMin for int: field must be not less than value
+	// TagMin for int: field must be not less than value.
 	TagMin
-	// TagMax for int: field must be not more than value
+	// TagMax for int: field must be not more than value.
 	TagMax
 )
 

@@ -32,6 +32,7 @@ func genRegexSlice(s parser.ParsedStruct) []data {
 func genInStr(s parser.ParsedStruct) []data {
 	return getData(s, parser.FString, parser.TagInStr, "validateInString")
 }
+
 func genInStrSlice(s parser.ParsedStruct) []data {
 	return getData(s, parser.FSliceString, parser.TagInStr, "validateInString")
 }
@@ -39,6 +40,7 @@ func genInStrSlice(s parser.ParsedStruct) []data {
 func genInInt(s parser.ParsedStruct) []data {
 	return getData(s, parser.FInt, parser.TagInInt, "validateInInt")
 }
+
 func genInIntSlice(s parser.ParsedStruct) []data {
 	return getData(s, parser.FSliceInt, parser.TagInInt, "validateInInt")
 }
@@ -46,6 +48,7 @@ func genInIntSlice(s parser.ParsedStruct) []data {
 func genMin(s parser.ParsedStruct) []data {
 	return getData(s, parser.FInt, parser.TagMin, "validateMin")
 }
+
 func genMinSlice(s parser.ParsedStruct) []data {
 	return getData(s, parser.FSliceInt, parser.TagMin, "validateMin")
 }
@@ -53,6 +56,7 @@ func genMinSlice(s parser.ParsedStruct) []data {
 func genMax(s parser.ParsedStruct) []data {
 	return getData(s, parser.FInt, parser.TagMax, "validateMax")
 }
+
 func genMaxSlice(s parser.ParsedStruct) []data {
 	return getData(s, parser.FSliceInt, parser.TagMax, "validateMax")
 }
@@ -84,4 +88,4 @@ func merge(s parser.ParsedStruct, funcs map[string][]interface{}) struct {
 		Struct parser.ParsedStruct
 		Funcs  map[string][]interface{}
 	}{s, funcs}
-} //nolint:gofumpt
+}
