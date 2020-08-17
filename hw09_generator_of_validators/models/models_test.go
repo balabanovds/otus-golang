@@ -60,8 +60,13 @@ func TestUserValidation(t *testing.T) {
 	})
 
 	t.Run("phones slice", func(t *testing.T) {
-		// Write me :)
-		t.Fail()
+		u := goodUser
+		strOf11 := "12345678901"
+		u.Phones = []string{strOf11, strOf11 + "2", strOf11 + "2"}
+
+		errs, err := u.Validate()
+		require.NoError(t, err)
+		requireOneFieldErr(t, errs, "Phones")
 	})
 
 	t.Run("many errors", func(t *testing.T) {
