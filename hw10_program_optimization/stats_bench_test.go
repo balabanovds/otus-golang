@@ -1,11 +1,12 @@
-package hw10_program_optimization //nolint:golint,stylecheck
+package hw10_program_optimization_test //nolint:golint,stylecheck
 import (
 	"archive/zip"
+
 	"io"
 	"log"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	stats "github.com/balabanovds/otus-golang/hw10_program_optimization"
 )
 
 func BenchmarkGetDomainStat(b *testing.B) {
@@ -14,30 +15,7 @@ func BenchmarkGetDomainStat(b *testing.B) {
 	b.ResetTimer()
 
 	for i := 0; i < b.N; i++ {
-		GetDomainStat(data, "com")
-	}
-}
-
-func BenchmarkGetUsers(b *testing.B) {
-	data, closer := readZip()
-	defer closer()
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		_, _ = getUsers(data)
-	}
-}
-
-func BenchmarkCountDomains(b *testing.B) {
-	data, closer := readZip()
-	defer closer()
-
-	users, err := getUsers(data)
-	require.NoError(b, err)
-	b.ResetTimer()
-
-	for i := 0; i < b.N; i++ {
-		_, _ = countDomains(users, "com")
+		_, _ = stats.GetDomainStat(data, "com")
 	}
 }
 
@@ -49,6 +27,6 @@ func readZip() (io.Reader, func()) {
 
 	data, err := r.File[0].Open()
 	return data, func() {
-		r.Close()
+		_ = r.Close()
 	}
 }
