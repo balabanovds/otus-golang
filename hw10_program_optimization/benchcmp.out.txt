@@ -1,0 +1,8 @@
+benchmark                    old ns/op     new ns/op     delta
+BenchmarkGetDomainStat-4     92193102      28116443      -69.50%
+
+benchmark                    old allocs     new allocs     delta
+BenchmarkGetDomainStat-4     304561         142327         -53.27%
+
+benchmark                    old bytes     new bytes     delta
+BenchmarkGetDomainStat-4     28509748      1696808       -94.05%
