@@ -20,7 +20,7 @@ const (
 var timeout time.Duration
 
 func init() {
-	pflag.DurationVar(&timeout, "timeout", defaultTimeout, "connection timeout in seconds")
+	pflag.DurationVar(&timeout, "timeout", defaultTimeout*time.Second, "connection timeout in seconds")
 
 	pflag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage of %s:\n", os.Args[0])
@@ -44,6 +44,7 @@ func main() {
 		os.Stdin,
 		os.Stdout,
 	)
+	defer client.Close()
 
 	err := client.Connect()
 	if err != nil {
@@ -65,7 +66,7 @@ func main() {
 	}()
 
 	sigCh := make(chan os.Signal, 1)
-	signal.Notify(sigCh, syscall.SIGINT, syscall.SIGTERM)
+	signal.Notify(sigCh, syscall.SIGINT)
 
 	select {
 	case <-sigCh:
