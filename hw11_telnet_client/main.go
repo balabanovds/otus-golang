@@ -38,11 +38,13 @@ func main() {
 		os.Exit(1)
 	}
 
+	ctx, cancelFn := context.WithCancel(context.Background())
 	client := NewTelnetClient(
 		net.JoinHostPort(pflag.Arg(0), pflag.Arg(1)),
 		timeout,
 		os.Stdin,
 		os.Stdout,
+		cancelFn,
 	)
 	defer client.Close()
 
@@ -50,8 +52,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-
-	ctx, cancelFn := context.WithCancel(context.Background())
 
 	go func() {
 		if err := client.Receive(); err != nil {

@@ -2,6 +2,7 @@ package main
 
 import (
 	"bufio"
+	"context"
 	"fmt"
 	"io"
 	"net"
@@ -17,19 +18,26 @@ type TelnetClient interface {
 }
 
 type Client struct {
-	conn    net.Conn
-	address string
-	timeout time.Duration
-	in      io.ReadCloser
-	out     io.Writer
+	conn       net.Conn
+	address    string
+	timeout    time.Duration
+	in         io.ReadCloser
+	out        io.Writer
+	cancelFunc context.CancelFunc
 }
 
-func NewTelnetClient(address string, timeout time.Duration, in io.ReadCloser, out io.Writer) TelnetClient {
+func NewTelnetClient(
+	address string,
+	timeout time.Duration,
+	in io.ReadCloser,
+	out io.Writer,
+	cancelFunc context.CancelFunc) TelnetClient {
 	return &Client{
-		address: address,
-		timeout: timeout,
-		in:      in,
-		out:     out,
+		address:    address,
+		timeout:    timeout,
+		in:         in,
+		out:        out,
+		cancelFunc: cancelFunc,
 	}
 }
 
@@ -37,7 +45,7 @@ func (c *Client) Connect() error {
 	conn, err := net.DialTimeout("tcp", c.address, c.timeout)
 	if err == nil {
 		c.conn = conn
-		fmt.Fprintf(os.Stderr, ">> connected to %s\n", c.address)
+		c.info("connected to " + c.address)
 	}
 
 	return err
@@ -54,8 +62,9 @@ func (c *Client) Send() error {
 		}
 	}
 	fmt.Fprintln(os.Stderr, ">> EOF")
+	c.cancelFunc()
 
-	return c.Close()
+	return nil
 }
 
 func (c *Client) Receive() error {
@@ -66,4 +75,8 @@ func (c *Client) Receive() error {
 
 func (c *Client) Close() error {
 	return c.conn.Close()
+}
+
+func (c *Client) info(msg string) {
+	fmt.Fprintln(os.Stderr, ">> "+msg)
 }
