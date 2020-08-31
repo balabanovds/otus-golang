@@ -1,0 +1,25 @@
+goos: darwin
+goarch: amd64
+pkg: github.com/balabanovds/otus-golang/hw10_program_optimization
+BenchmarkGetDomainStat-4   	      10	  27457218 ns/op	 1696918 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26843845 ns/op	 1696888 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26767427 ns/op	 1696814 B/op	  142327 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26929901 ns/op	 1696849 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  27713806 ns/op	 1696939 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26977586 ns/op	 1696664 B/op	  142327 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26693232 ns/op	 1696894 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  27111535 ns/op	 1696819 B/op	  142327 allocs/op
+BenchmarkGetDomainStat-4   	      10	  27039420 ns/op	 1696835 B/op	  142327 allocs/op
+BenchmarkGetDomainStat-4   	      10	  27102816 ns/op	 1696867 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  27068473 ns/op	 1696819 B/op	  142327 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26702482 ns/op	 1696776 B/op	  142327 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26926153 ns/op	 1696888 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26707980 ns/op	 1696873 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  27011673 ns/op	 1696817 B/op	  142327 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26916626 ns/op	 1696920 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26837803 ns/op	 1696859 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26863008 ns/op	 1696785 B/op	  142327 allocs/op
+BenchmarkGetDomainStat-4   	      10	  26647639 ns/op	 1696880 B/op	  142328 allocs/op
+BenchmarkGetDomainStat-4   	      10	  27960356 ns/op	 1696942 B/op	  142328 allocs/op
+PASS
+ok  	github.com/balabanovds/otus-golang/hw10_program_optimization	11.117s
