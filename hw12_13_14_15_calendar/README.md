@@ -5,3 +5,9 @@
 - [Домашнее задание №15 «Докеризация и интеграционное тестирование Календаря»](./docs/15_README.md)
 
 **Домашнее задание не принимается, если не принято ДЗ, предшедствующее ему.**
+
+### Evironment variables
+```dotenv
+CAL_PRODUCTION=true         # set production flag to true; false if ommited
+CAL_STORAGE_DSN="some DSN"  # full Data Source Name to connect to PostgreSQL 
+```

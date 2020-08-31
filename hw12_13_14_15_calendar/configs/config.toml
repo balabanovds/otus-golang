@@ -1,5 +1,8 @@
 [logger]
 level = "INFO"
+log_file = ""
 
-# TODO
-# ...
+[server]
+host = "localhost"
+port = 9000
+shutdown_timeout_ms = 10_000
