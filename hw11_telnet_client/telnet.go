@@ -23,6 +23,7 @@ type Client struct {
 	timeout    time.Duration
 	in         io.ReadCloser
 	out        io.Writer
+	info       io.Writer
 	cancelFunc context.CancelFunc
 }
 
@@ -37,6 +38,7 @@ func NewTelnetClient(
 		timeout:    timeout,
 		in:         in,
 		out:        out,
+		info:       os.Stderr,
 		cancelFunc: cancelFunc,
 	}
 }
@@ -45,7 +47,7 @@ func (c *Client) Connect() error {
 	conn, err := net.DialTimeout("tcp", c.address, c.timeout)
 	if err == nil {
 		c.conn = conn
-		c.info("connected to " + c.address)
+		c.printInfo("connected to " + c.address)
 	}
 
 	return err
@@ -56,12 +58,12 @@ func (c *Client) Send() error {
 	for scanner.Scan() {
 		_, err := c.conn.Write([]byte(scanner.Text() + "\n"))
 		if err != nil {
-			fmt.Fprintln(os.Stderr, ">> connection closed by remote peer")
+			c.printInfo("connection closed by remote peer")
 
 			return err
 		}
 	}
-	fmt.Fprintln(os.Stderr, ">> EOF")
+	c.printInfo("EOF")
 	c.cancelFunc()
 
 	return nil
@@ -77,6 +79,6 @@ func (c *Client) Close() error {
 	return c.conn.Close()
 }
 
-func (c *Client) info(msg string) {
-	fmt.Fprintln(os.Stderr, ">> "+msg)
+func (c *Client) printInfo(msg string) {
+	fmt.Fprintln(c.info, ">> "+msg)
 }
