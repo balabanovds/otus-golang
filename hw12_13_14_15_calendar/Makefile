@@ -1,3 +1,5 @@
+include .env
+
 build:
 	go build -o ./bin/calendar ./cmd/calendar
 
@@ -11,3 +13,18 @@ lint: install-lint-deps
 	golangci-lint run ./...
 
 .PHONY: build test lint
+
+deploy-start:
+	docker-compose -f deployments/docker-compose.yaml -p cal up -d
+
+deploy-stop:
+	docker-compose -f deployments/docker-compose.yaml -p cal down -d
+
+run:
+	CAL_STORAGE_DSN=$(CAL_STORAGE_DSN) go run ./cmd/calendar --config ./configs/config.toml
+
+migrate-up:
+	goose -dir migrations postgres $(CAL_STORAGE_DSN) up
+
+migrate-down:
+	goose -dir migrations postgres $(CAL_STORAGE_DSN) down
