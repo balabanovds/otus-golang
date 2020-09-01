@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 	"log"
 	"os"
@@ -9,7 +10,6 @@ import (
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	internalhttp "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/http"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory" //nolint:gci
-	"github.com/spf13/pflag"
 )
 
 var configFile string

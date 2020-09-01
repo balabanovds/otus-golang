@@ -15,7 +15,8 @@ func New(storage storage.IStorage) *App {
 }
 
 func (a *App) CreateEvent(ctx context.Context, id string, title string) error {
-	return a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+	_, err := a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+	return err
 }
 
 // TODO

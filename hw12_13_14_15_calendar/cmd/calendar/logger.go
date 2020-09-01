@@ -19,7 +19,10 @@ func configLogger(level, logFile string, production bool) error {
 
 	cfg.Level.SetLevel(al.Level())
 
-	cfg.OutputPaths = []string{"stderr", logFile}
+	cfg.OutputPaths = []string{"stderr"}
+	if logFile != "" {
+		cfg.OutputPaths = append(cfg.OutputPaths, logFile)
+	}
 
 	l, err := cfg.Build()
 	if err != nil {
@@ -30,4 +33,3 @@ func configLogger(level, logFile string, production bool) error {
 
 	return nil
 }
-
