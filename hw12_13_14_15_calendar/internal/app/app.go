@@ -7,15 +7,15 @@ import (
 )
 
 type App struct {
-	storage storage.IStorage
+	storage storage.Repo
 }
 
-func New(storage storage.IStorage) *App {
+func New(storage storage.Repo) *App {
 	return &App{storage}
 }
 
 func (a *App) CreateEvent(ctx context.Context, id string, title string) error {
-	_, err := a.storage.CreateEvent(storage.Event{ID: id, Title: title})
+	_, err := a.storage.Events().Create(storage.Event{ID: id, Title: title})
 	return err
 }
 

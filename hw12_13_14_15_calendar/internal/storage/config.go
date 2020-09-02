@@ -1,6 +1,6 @@
 package storage
 
 type Config struct {
-	Sql bool   `koanf:"sql"`
+	SQL bool   `koanf:"sql"`
 	Dsn string `koanf:"dsn"`
 }

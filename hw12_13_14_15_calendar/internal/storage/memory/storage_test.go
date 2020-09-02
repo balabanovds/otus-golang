@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newTestStorage(start time.Time, num int) storage.IStorage {
+func newTestStorage(start time.Time, num int) storage.Repo {
 	return &Storage{
 		data: generateTestData(start, num),
 	}
@@ -22,7 +22,7 @@ func TestStorage(t *testing.T) {
 	t.Run("create in already busy time", func(t *testing.T) {
 		st := newTestStorage(time.Now(), 3)
 
-		_, err := st.CreateEvent(newTestEvent(time.Now().Add(10 * time.Second)))
+		_, err := st.Events().Create(newTestEvent(time.Now().Add(10 * time.Second)))
 
 		require.EqualError(t, err, storage.ErrEventExists.Error())
 	})
@@ -30,7 +30,7 @@ func TestStorage(t *testing.T) {
 	t.Run("update not found", func(t *testing.T) {
 		st := newTestStorage(time.Now(), 0)
 
-		err := st.UpdateEvent("wrongID", newTestEvent(time.Now().Add(10*time.Second)))
+		err := st.Events().Update("wrongID", newTestEvent(time.Now().Add(10*time.Second)))
 
 		require.EqualError(t, err, storage.ErrEvent404.Error())
 	})
@@ -38,18 +38,18 @@ func TestStorage(t *testing.T) {
 	t.Run("delete", func(t *testing.T) {
 		st := newTestStorage(time.Now(), 0)
 		ev := newTestEvent(time.Now())
-		_, err := st.CreateEvent(ev)
+		_, err := st.Events().Create(ev)
 		require.NoError(t, err)
-		require.Len(t, st.ListEventsForDay(time.Now()), 1)
+		require.Len(t, st.Events().ListForDay(time.Now()), 1)
 
-		st.DeleteEvent(ev.ID)
-		require.Len(t, st.ListEventsForDay(time.Now()), 0)
+		st.Events().Delete(ev.ID)
+		require.Len(t, st.Events().ListForDay(time.Now()), 0)
 	})
 
 	t.Run("list events for day", func(t *testing.T) {
 		st := newTestStorage(time.Now(), 5)
 
-		got := st.ListEventsForDay(time.Now())
+		got := st.Events().ListForDay(time.Now())
 
 		require.Len(t, got, 1)
 	})
@@ -59,7 +59,7 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, err)
 		st := newTestStorage(pt, 50)
 
-		got := st.ListEventsForWeek(pt.Add(24 * time.Hour))
+		got := st.Events().ListForWeek(pt.Add(24 * time.Hour))
 
 		require.Len(t, got, 7)
 	})
@@ -69,7 +69,7 @@ func TestStorage(t *testing.T) {
 		require.NoError(t, err)
 		st := newTestStorage(pt, 50)
 
-		got := st.ListEventsForMonth(pt)
+		got := st.Events().ListForMonth(pt)
 
 		require.Len(t, got, 7)
 	})

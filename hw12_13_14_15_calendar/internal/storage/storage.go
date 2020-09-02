@@ -1,13 +1,22 @@
 package storage
 
-import "time"
+import (
+	"context"
+	"time"
+)
 
-type IStorage interface {
-	CreateEvent(event Event) (Event, error)
-	GetEvent(id string) (Event, error)
-	UpdateEvent(id string, event Event) error
-	DeleteEvent(id string)
-	ListEventsForDay(date time.Time) []Event
-	ListEventsForWeek(date time.Time) []Event
-	ListEventsForMonth(date time.Time) []Event
+type Repo interface {
+	Events() EventsRepo
+	Open(ctx context.Context) error
+	Close() error
+}
+
+type EventsRepo interface {
+	Create(event Event) (Event, error)
+	Get(id string) (Event, error)
+	Update(id string, event Event) error
+	Delete(id string)
+	ListForDay(date time.Time) []Event
+	ListForWeek(date time.Time) []Event
+	ListForMonth(date time.Time) []Event
 }
