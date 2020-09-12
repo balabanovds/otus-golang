@@ -8,25 +8,25 @@ import (
 )
 
 type Storage struct {
-	mu         sync.RWMutex
-	data       map[string]storage.Event
-	eventsRepo storage.EventsRepo
+	mu           sync.RWMutex
+	data         map[int]storage.Event
+	eventStorage storage.IEventStorage
 }
 
-func New() storage.Repo {
+func New() storage.IStorage {
 	return &Storage{
-		data: make(map[string]storage.Event),
+		data: make(map[int]storage.Event),
 	}
 }
 
-func (s *Storage) Events() storage.EventsRepo {
-	if s.eventsRepo == nil {
-		s.eventsRepo = newEventStore(s)
+func (s *Storage) Events() storage.IEventStorage {
+	if s.eventStorage == nil {
+		s.eventStorage = newEventStorage(s)
 	}
-	return s.eventsRepo
+	return s.eventStorage
 }
 
-func (s *Storage) Open(_ context.Context) error {
+func (s *Storage) Connect(_ context.Context) error {
 	return nil
 }
 

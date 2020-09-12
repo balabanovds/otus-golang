@@ -1,19 +1,21 @@
 package memorystorage
 
 import (
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
+	"context"
 	"time"
+
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 )
 
-type eventsRepo struct {
+type eventStorage struct {
 	st *Storage
 }
 
-func newEventStore(st *Storage) *eventsRepo {
-	return &eventsRepo{st}
+func newEventStorage(st *Storage) *eventStorage {
+	return &eventStorage{st}
 }
 
-func (s *eventsRepo) Create(event storage.Event) (storage.Event, error) {
+func (s *eventStorage) Create(_ context.Context, event storage.Event) (storage.Event, error) {
 	s.st.mu.Lock()
 	defer s.st.mu.Unlock()
 
@@ -29,7 +31,7 @@ func (s *eventsRepo) Create(event storage.Event) (storage.Event, error) {
 	return event, nil
 }
 
-func (s *eventsRepo) Get(id string) (storage.Event, error) {
+func (s *eventStorage) Get(_ context.Context, id int) (storage.Event, error) {
 	s.st.mu.Lock()
 	defer s.st.mu.Unlock()
 
@@ -39,32 +41,34 @@ func (s *eventsRepo) Get(id string) (storage.Event, error) {
 	return s.st.data[id], nil
 }
 
-func (s *eventsRepo) Update(id string, event storage.Event) error {
+func (s *eventStorage) Update(_ context.Context, id int, event storage.Event) error {
 	s.st.mu.Lock()
 	defer s.st.mu.Unlock()
 
-	if _, ok := s.st.data[id]; !ok {
+	_, ok := s.st.data[id]
+	if !ok {
 		return storage.ErrEvent404
 	}
+
 	s.st.data[id] = event
 
 	return nil
 }
 
-func (s *eventsRepo) Delete(id string) {
+func (s *eventStorage) Delete(_ context.Context, id int) {
 	s.st.mu.Lock()
 	defer s.st.mu.Unlock()
 
 	delete(s.st.data, id)
 }
 
-func (s *eventsRepo) ListForDay(date time.Time) []storage.Event {
+func (s *eventStorage) ListForDay(_ context.Context, date time.Time) []storage.Event {
 	return s.filterEvents(date, func(newTime time.Time, exTime time.Time) bool {
 		return newTime.YearDay() == exTime.YearDay()
 	})
 }
 
-func (s *eventsRepo) ListForWeek(date time.Time) []storage.Event {
+func (s *eventStorage) ListForWeek(_ context.Context, date time.Time) []storage.Event {
 	return s.filterEvents(date, func(newTime time.Time, exTime time.Time) bool {
 		origYear, origWeek := newTime.ISOWeek()
 		destYear, destWeek := exTime.ISOWeek()
@@ -72,14 +76,16 @@ func (s *eventsRepo) ListForWeek(date time.Time) []storage.Event {
 	})
 }
 
-func (s *eventsRepo) ListForMonth(date time.Time) []storage.Event {
+func (s *eventStorage) ListForMonth(_ context.Context, date time.Time) []storage.Event {
 	return s.filterEvents(date, func(newTime time.Time, exTime time.Time) bool {
 		return newTime.Month() == exTime.Month()
 	})
 }
 
-func (s *eventsRepo) filterEvents(date time.Time,
-	cmp func(newTime time.Time, exTime time.Time) bool) []storage.Event {
+func (s *eventStorage) filterEvents(
+	date time.Time,
+	cmp func(newTime time.Time, exTime time.Time) bool,
+) []storage.Event {
 	s.st.mu.Lock()
 	defer s.st.mu.Unlock()
 

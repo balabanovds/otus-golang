@@ -3,6 +3,6 @@ package app
 import "errors"
 
 var (
-	ErrBusyDate    = errors.New("selected date is busy")
-	ErrWrongFormat = errors.New("event wrong format")
+	ErrForbidden  = errors.New("forbidden action")
+	ErrAppGeneral = errors.New("general app error")
 )

@@ -3,13 +3,13 @@
 create extension if not exists "uuid-ossp";
 
 create table events (
-    id uuid default uuid_generate_v4(),
+    id serial primary key,
     title varchar(256) not null,
-    start_time timestamp,
-    duration bigint,
+    start_at timestamp,
+    end_at timestamp,
     description text,
     user_id int,
-    remind_duration bigint,
+    remind_at timestamp,
     created_at timestamp default now()
 );
 
