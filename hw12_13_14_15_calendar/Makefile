@@ -1,5 +1,3 @@
-include .env
-
 build: test
 	go build -o ./bin/calendar ./cmd/calendar
 
@@ -19,9 +17,6 @@ deploy-start:
 
 deploy-stop:
 	docker-compose -f deployments/docker-compose.yaml -p cal down -d
-
-run:
-	CAL_STORAGE_DSN=$(CAL_STORAGE_DSN) go run ./cmd/calendar --config ./configs/config.toml
 
 migrate-up:
 	goose -dir migrations postgres $(CAL_STORAGE_DSN) up
