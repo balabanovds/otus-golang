@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
-	_ "github.com/jackc/pgx/v4/stdlib" //nolint:golint
+	_ "github.com/jackc/pgx/v4/stdlib" // import pgx
 	"github.com/jmoiron/sqlx"
 )
 
