@@ -2,6 +2,7 @@ package memorystorage
 
 import (
 	"context"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 	"sync"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
@@ -9,13 +10,13 @@ import (
 
 type Storage struct {
 	mu           sync.RWMutex
-	data         map[int]storage.Event
+	data         map[int]models.Event
 	eventStorage storage.IEventStorage
 }
 
 func New() storage.IStorage {
 	return &Storage{
-		data: make(map[int]storage.Event),
+		data: make(map[int]models.Event),
 	}
 }
 

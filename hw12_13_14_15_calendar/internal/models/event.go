@@ -1,17 +1,17 @@
-package storage
+package models
 
 import (
 	"time"
 )
 
 type Event struct {
-	ID             int
-	Title          string
-	StartTime      time.Time `db:"start_at"`
-	Duration       time.Duration
-	Description    string
-	UserID         int `db:"user_id"`
-	RemindDuration time.Duration
+	ID             int           `json:"id"`
+	Title          string        `json:"title"`
+	StartTime      time.Time     `db:"start_at" json:"start_time"`
+	Duration       time.Duration `json:"duration"`
+	Description    string        `json:"description"`
+	UserID         int           `db:"user_id" json:"user_id"`
+	RemindDuration time.Duration `json:"remind_duration"`
 }
 
 func (e Event) CopyFromIncoming(in IncomingEvent) Event {

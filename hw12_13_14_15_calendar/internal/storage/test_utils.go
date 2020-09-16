@@ -1,15 +1,16 @@
 package storage
 
 import (
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 	"math/rand"
 	"time"
 )
 
 var id = 0
 
-func NewTestEvent(start time.Time) Event {
+func NewTestEvent(start time.Time) models.Event {
 	id++
-	return Event{
+	return models.Event{
 		ID:             id,
 		Title:          randString(10),
 		StartTime:      start,
