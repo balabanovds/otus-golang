@@ -1,4 +1,4 @@
-package internalhttp
+package router
 
 import (
 	"net/http"
@@ -42,6 +42,8 @@ func logRequest(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		from := time.Now()
 
+		url := r.URL.EscapedPath()
+
 		wrapped := wrapResponseWriter(w)
 
 		next.ServeHTTP(wrapped, r)
@@ -49,7 +51,7 @@ func logRequest(next http.Handler) http.Handler {
 			zap.String("method", r.Method),
 			zap.String("remote_addr", r.RemoteAddr),
 			zap.Int("code", wrapped.status),
-			zap.String("path", r.URL.EscapedPath()),
+			zap.String("path", url),
 			zap.Duration("duration", time.Since(from)),
 		)
 	})

@@ -17,7 +17,7 @@ import (
 var configFile string
 
 func init() {
-	pflag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	pflag.StringVar(&configFile, "config", "./configs/config.toml", "Path to configuration file")
 }
 
 func main() {
