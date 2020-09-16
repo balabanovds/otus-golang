@@ -1,8 +1,9 @@
 package router
 
 import (
-	a "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"net/http"
+
+	a "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 )
 
 type rootHandler struct {

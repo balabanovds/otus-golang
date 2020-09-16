@@ -2,11 +2,12 @@ package router
 
 import (
 	"encoding/json"
-	"go.uber.org/zap"
 	"net/http"
 	"path"
 	"strconv"
 	"strings"
+
+	"go.uber.org/zap"
 )
 
 func splitPath(s string) (tail, head string) {

@@ -3,11 +3,11 @@ package internalhttp
 import (
 	"context"
 	"fmt"
+	"net/http"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/http/router"
 	"go.uber.org/zap"
-	"net/http"
 )
 
 type Server struct {

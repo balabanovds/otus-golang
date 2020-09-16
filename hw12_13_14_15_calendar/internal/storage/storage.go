@@ -2,8 +2,9 @@ package storage
 
 import (
 	"context"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 	"time"
+
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 )
 
 type IStorage interface {

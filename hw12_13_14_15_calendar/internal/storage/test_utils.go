@@ -1,9 +1,10 @@
 package storage
 
 import (
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 	"math/rand"
 	"time"
+
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 )
 
 var id = 0

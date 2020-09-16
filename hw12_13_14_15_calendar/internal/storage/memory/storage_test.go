@@ -34,10 +34,10 @@ func TestStorage(t *testing.T) {
 		ev := storage.NewTestEvent(time.Now())
 		_, err := st.Events().Create(nil, ev)
 		require.NoError(t, err)
-		require.Len(t, st.Events().ListForDay(nil, time.Now()), 1)
+		require.Len(t, st.Events().ListForDay(nil, time.Now()).List, 1)
 
 		st.Events().Delete(nil, ev.ID)
-		require.Len(t, st.Events().ListForDay(nil, time.Now()), 0)
+		require.Len(t, st.Events().ListForDay(nil, time.Now()).List, 0)
 	})
 
 	t.Run("list events for day", func(t *testing.T) {
@@ -45,7 +45,7 @@ func TestStorage(t *testing.T) {
 
 		got := st.Events().ListForDay(nil, time.Now())
 
-		require.Len(t, got, 1)
+		require.Len(t, got.List, 1)
 	})
 
 	t.Run("list events for week", func(t *testing.T) {
@@ -55,7 +55,7 @@ func TestStorage(t *testing.T) {
 
 		got := st.Events().ListForWeek(nil, pt.Add(24*time.Hour))
 
-		require.Len(t, got, 7)
+		require.Len(t, got.List, 7)
 	})
 
 	t.Run("list events for month", func(t *testing.T) {
@@ -65,6 +65,6 @@ func TestStorage(t *testing.T) {
 
 		got := st.Events().ListForMonth(nil, pt)
 
-		require.Len(t, got, 7)
+		require.Len(t, got.List, 7)
 	})
 }

@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/http"
 	"strings"
 
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/http" //nolint:goimports
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"github.com/knadh/koanf"
 	"github.com/knadh/koanf/parsers/toml"

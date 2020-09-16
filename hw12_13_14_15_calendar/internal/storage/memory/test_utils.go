@@ -1,9 +1,9 @@
 package memorystorage
 
 import (
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 	"time"
 
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 )
 

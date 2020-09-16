@@ -1,8 +1,9 @@
 package router
 
 import (
-	a "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"net/http"
+
+	a "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 )
 
 type eventsHandler struct {
@@ -13,9 +14,12 @@ func newEventsHandler(app a.Application) eventsHandler {
 	return eventsHandler{app}
 }
 
-// /year/:year_num/day/:day_in_year_number
-// /year/:year_num/week/:week_number
-// /year/:year_num/month/:month_number
+/*
+	/year/:year_num/day/:day_in_year_number
+	/year/:year_num/week/:week_number
+	/year/:year_num/month/:month_number
+*/
+
 func (h *eventsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		clientError(w, r, http.StatusMethodNotAllowed, ErrWrongMethod)
@@ -67,5 +71,4 @@ func (h *eventsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	default:
 		http.NotFound(w, r)
 	}
-
 }

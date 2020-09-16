@@ -2,9 +2,9 @@ package memorystorage
 
 import (
 	"context"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 	"sync"
 
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 )
 
