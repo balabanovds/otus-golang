@@ -8,10 +8,14 @@ import (
 
 type rootHandler struct {
 	eventsHandler eventsHandler
+	eventHandler  eventHandler
 }
 
 func newRootHandler(app a.Application) rootHandler {
-	return rootHandler{eventsHandler: newEventsHandler(app)}
+	return rootHandler{
+		eventsHandler: newEventsHandler(app),
+		eventHandler:  newEventHandler(app),
+	}
 }
 
 func (h rootHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -22,6 +26,7 @@ func (h rootHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	case "events":
 		h.eventsHandler.ServeHTTP(w, r)
 	case "event":
+		h.eventHandler.ServeHTTP(w, r)
 	default:
 		http.NotFound(w, r)
 	}

@@ -16,5 +16,5 @@ func New(app a.Application) *Router {
 }
 
 func (rtr *Router) RootHandler() http.Handler {
-	return alice.New(recoverPanic, jsonContent, logRequest).Then(rtr.rootHandler)
+	return alice.New(recoverPanic, jsonContent, logRequest, authorize).Then(rtr.rootHandler)
 }

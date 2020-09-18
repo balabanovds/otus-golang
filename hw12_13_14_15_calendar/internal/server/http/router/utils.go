@@ -10,11 +10,11 @@ import (
 	"go.uber.org/zap"
 )
 
-func splitPath(s string) (tail, head string) {
+func splitPath(s string) (head, tail string) {
 	s = path.Clean("/" + s)
 	i := strings.Index(s[1:], "/") + 1
 	if i <= 0 {
-		return "/", s[1:]
+		return s[1:], "/"
 	}
 
 	return s[1:i], s[i:]
@@ -34,9 +34,14 @@ func parseInt(s string) (value int, tail string, err error) {
 }
 
 func respond(w http.ResponseWriter, code int, data interface{}) {
-	w.WriteHeader(code)
 	if data != nil {
-		err := json.NewEncoder(w).Encode(data)
+		d, err := json.Marshal(data)
+		if err != nil {
+			serverError(w, err)
+			return
+		}
+		w.WriteHeader(code)
+		_, err = w.Write(d)
 		if err != nil {
 			serverError(w, err)
 		}

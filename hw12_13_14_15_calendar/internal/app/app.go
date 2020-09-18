@@ -17,9 +17,9 @@ const (
 type ListFunc func(ctx context.Context, year, day int) (models.EventsList, error)
 
 type Application interface {
-	CreateEvent(ctx context.Context, event models.IncomingEvent) error
+	CreateEvent(ctx context.Context, event models.IncomingEvent) (models.Event, error)
 	Get(ctx context.Context, id int) (models.Event, error)
-	Update(ctx context.Context, id int, event models.IncomingEvent) error
+	Update(ctx context.Context, id int, event models.IncomingEvent) (models.Event, error)
 	Delete(ctx context.Context, id int) error
 	ListForDay(ctx context.Context, year, day int) (models.EventsList, error)
 	ListForWeek(ctx context.Context, year, week int) (models.EventsList, error)
@@ -34,31 +34,33 @@ func New(storage storage.IStorage) *App {
 	return &App{storage}
 }
 
-func (a *App) CreateEvent(ctx context.Context, in models.IncomingEvent) error {
+func (a *App) CreateEvent(ctx context.Context, in models.IncomingEvent) (models.Event, error) {
 	ctxID, ok := ctx.Value(CtxKeyUserID).(int)
 	if !ok {
-		return ErrAppGeneral
+		return models.Event{}, ErrAppGeneral
 	}
 	var ev models.Event
 	ev.CopyFromIncoming(in)
 	ev.UserID = ctxID
 
-	_, err := a.storage.Events().Create(ctx, ev)
-
-	return err
+	return a.storage.Events().Create(ctx, ev)
 }
 
 func (a *App) Get(ctx context.Context, id int) (models.Event, error) {
 	return a.storage.Events().Get(ctx, id)
 }
 
-func (a *App) Update(ctx context.Context, id int, in models.IncomingEvent) error {
+func (a *App) Update(ctx context.Context, id int, in models.IncomingEvent) (models.Event, error) {
+	if err := a.checkUserID(ctx, id); err != nil {
+		return models.Event{}, err
+	}
 	ev, err := a.Get(ctx, id)
 	if err != nil {
-		return err
+		return models.Event{}, err
 	}
 	ev.CopyFromIncoming(in)
-	return a.storage.Events().Update(ctx, id, ev)
+	err = a.storage.Events().Update(ctx, id, ev)
+	return ev, err
 }
 
 func (a *App) Delete(ctx context.Context, id int) error {

@@ -14,7 +14,7 @@ type Event struct {
 	RemindDuration time.Duration `json:"remind_duration"`
 }
 
-func (e Event) CopyFromIncoming(in IncomingEvent) Event {
+func (e *Event) CopyFromIncoming(in IncomingEvent) *Event {
 	if !IsZeroValue(in.Title) {
 		e.Title = in.Title
 	}
@@ -35,9 +35,9 @@ func (e Event) CopyFromIncoming(in IncomingEvent) Event {
 }
 
 type IncomingEvent struct {
-	Title          string
-	StartTime      time.Time `db:"start_at"`
-	Duration       time.Duration
-	Description    string
-	RemindDuration time.Duration
+	Title          string        `json:"title"`
+	StartTime      time.Time     `db:"start_at" json:"start_time"`
+	Duration       time.Duration `json:"duration"`
+	Description    string        `json:"description"`
+	RemindDuration time.Duration `json:"remind_duration"`
 }

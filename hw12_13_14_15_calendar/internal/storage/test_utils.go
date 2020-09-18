@@ -22,6 +22,16 @@ func NewTestEvent(start time.Time) models.Event {
 	}
 }
 
+func NewTestIncomingEvent(start time.Time) models.IncomingEvent {
+	return models.IncomingEvent{
+		Title:          randString(10),
+		StartTime:      start,
+		Duration:       1 * time.Hour,
+		Description:    randString(30),
+		RemindDuration: 0,
+	}
+}
+
 func randString(length int) string {
 	r := rand.New(rand.NewSource(time.Now().UnixNano())) //nolint:gosec
 	chars := []rune("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789 _")

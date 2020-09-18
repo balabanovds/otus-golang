@@ -1,9 +1,11 @@
 package router
 
 import (
+	"context"
 	"net/http"
 	"time"
 
+	a "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"go.uber.org/zap"
 )
 
@@ -67,5 +69,12 @@ func recoverPanic(next http.Handler) http.Handler {
 		}()
 
 		next.ServeHTTP(w, r)
+	})
+}
+
+func authorize(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		ctx := context.WithValue(r.Context(), a.CtxKeyUserID, 1)
+		next.ServeHTTP(w, r.WithContext(ctx))
 	})
 }

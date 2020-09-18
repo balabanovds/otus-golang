@@ -15,15 +15,15 @@ func TestSplitPath(t *testing.T) {
 		{"", "/", ""},
 		{"/", "/", ""},
 		{"foo", "/", "foo"},
-		{"/foo/bar", "foo", "/bar"},
-		{"/foo/bar/", "foo", "/bar"},
+		{"/foo/bar", "/bar", "foo"},
+		{"/foo/bar/", "/bar", "foo"},
 	}
 
 	for _, tst := range tests {
 		t.Run(tst.path, func(t *testing.T) {
-			tail, head := splitPath(tst.path)
-			require.Equal(t, tst.tail, tail)
-			require.Equal(t, tst.head, head)
+			head, tail := splitPath(tst.path)
+			require.Equal(t, tst.tail, tail, "tail check")
+			require.Equal(t, tst.head, head, "head check")
 		})
 	}
 }

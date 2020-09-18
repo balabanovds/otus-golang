@@ -1,21 +1,29 @@
 package router_test
 
 import (
+	"bytes"
 	"encoding/json"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/http/router"
-	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
-	"github.com/stretchr/testify/require"
+	"fmt"
+	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 	"time"
+
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/http/router"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
+	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/stretchr/testify/require"
+)
+
+var (
+	start = time.Date(2020, time.January, 1, 0, 0, 0, 1, time.Local)
 )
 
 func TestNotFound(t *testing.T) {
-	r := router.New(nil)
-	srv := httptest.NewServer(r.RootHandler())
+	srv := initSrv(0)
 	defer srv.Close()
 
 	resp, err := http.Get(srv.URL + "/")
@@ -23,12 +31,8 @@ func TestNotFound(t *testing.T) {
 	require.Equal(t, http.StatusNotFound, resp.StatusCode)
 }
 
-func TestEventsHandler(t *testing.T) {
-	start := time.Date(2020, time.January, 1, 0, 0, 0, 0, time.Local)
-	a := app.New(memorystorage.NewTestStorage(start, 20))
-
-	r := router.New(a)
-	srv := httptest.NewServer(r.RootHandler())
+func TestListEvents(t *testing.T) {
+	srv := initSrv(20)
 	defer srv.Close()
 
 	tests := []struct {
@@ -58,11 +62,117 @@ func TestEventsHandler(t *testing.T) {
 			require.NoError(t, err)
 			require.Equal(t, tst.status, resp.StatusCode)
 			if tst.checkLen {
-				var list models.EventsList
-				err := json.NewDecoder(resp.Body).Decode(&list)
-				require.NoError(t, err)
-				require.Len(t, list.List, tst.length)
+				require.Len(t, decodeEventsList(t, resp.Body), tst.length)
 			}
 		})
 	}
+}
+
+func TestCreateEvent(t *testing.T) {
+	srv := initSrv(0)
+	defer srv.Close()
+
+	respEvent := createEvent(t, srv.URL, start.AddDate(0, 0, 1))
+
+	checkEventsForMonth(t, srv.URL, 2020, 1, respEvent)
+}
+
+func TestGetEvent(t *testing.T) {
+	srv := initSrv(0)
+	defer srv.Close()
+
+	createdEvent := createEvent(t, srv.URL, start.AddDate(0, 0, 1))
+
+	resp, err := http.Get(fmt.Sprintf("%s/event/%d", srv.URL, createdEvent.ID))
+	require.NoError(t, err)
+
+	require.Equal(t, createdEvent, decodeEvent(t, resp.Body))
+}
+
+func TestUpdateEvent(t *testing.T) {
+	srv := initSrv(0)
+	defer srv.Close()
+
+	createdEvent := createEvent(t, srv.URL, start.AddDate(0, 0, 1))
+	updEvent := models.IncomingEvent{
+		Title: "upd",
+	}
+
+	data, err := json.Marshal(&updEvent)
+	require.NoError(t, err)
+
+	req, err := http.NewRequest(
+		http.MethodPut,
+		fmt.Sprintf("%s/event/%d", srv.URL, createdEvent.ID),
+		bytes.NewReader(data),
+	)
+	require.NoError(t, err)
+
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	createdEvent.Title = "upd"
+	require.Equal(t, createdEvent, decodeEvent(t, resp.Body))
+}
+
+func TestDeleteEvent(t *testing.T) {
+	srv := initSrv(0)
+	defer srv.Close()
+
+	createdEvent := createEvent(t, srv.URL, start.AddDate(0, 0, 1))
+	req, err := http.NewRequest(
+		http.MethodDelete,
+		fmt.Sprintf("%s/event/%d", srv.URL, createdEvent.ID),
+		nil,
+	)
+	require.NoError(t, err)
+
+	resp, err := http.DefaultClient.Do(req)
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	checkEventsForMonth(t, srv.URL, 2020, 1, []models.Event{}...)
+}
+
+func initSrv(elements int) *httptest.Server {
+	a := app.New(memorystorage.NewTestStorage(start, elements))
+
+	r := router.New(a)
+	return httptest.NewServer(r.RootHandler())
+}
+
+func createEvent(t *testing.T, url string, time time.Time) models.Event {
+	incomingEvent := storage.NewTestIncomingEvent(time)
+	data, err := json.Marshal(&incomingEvent)
+	require.NoError(t, err)
+
+	resp, err := http.Post(url+"/event", "application/json", bytes.NewReader(data))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusCreated, resp.StatusCode)
+
+	return decodeEvent(t, resp.Body)
+}
+
+func checkEventsForMonth(t *testing.T, url string, year, month int, events ...models.Event) {
+	resp, err := http.Get(fmt.Sprintf("%s/events/year/%d/month/%d", url, year, month))
+	require.NoError(t, err)
+	require.Equal(t, http.StatusOK, resp.StatusCode)
+
+	require.Equal(t, events, decodeEventsList(t, resp.Body))
+}
+
+func decodeEventsList(t *testing.T, r io.Reader) []models.Event {
+	var list models.EventsList
+	err := json.NewDecoder(r).Decode(&list)
+	require.NoError(t, err)
+
+	return list.List
+}
+
+func decodeEvent(t *testing.T, r io.Reader) models.Event {
+	var respEvent models.Event
+	err := json.NewDecoder(r).Decode(&respEvent)
+	require.NoError(t, err)
+	return respEvent
 }
