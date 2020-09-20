@@ -24,7 +24,7 @@ func TestApp_CreateEvent(t *testing.T) {
 	createdEvent, err := a.CreateEvent(ctx, inEvent)
 	require.NoError(t, err)
 
-	gotEvent, err := a.Get(ctx, createdEvent.ID)
+	gotEvent, err := a.GetEvent(ctx, createdEvent.ID)
 	require.NoError(t, err)
 	require.Equal(t, createdEvent, gotEvent)
 }
@@ -41,15 +41,15 @@ func TestApp_List(t *testing.T) {
 		err  error
 		len  int
 	}{
-		{"day", a.ListForDay, 2020, 3, nil, 1},
-		{"day empty", a.ListForDay, 2020, 300, nil, 0},
-		{"day error", a.ListForDay, 2020, 400, app.ErrDateFormat, 0},
-		{"week", a.ListForWeek, 2020, 2, nil, 7},
-		{"week empty", a.ListForWeek, 2020, 20, nil, 0},
-		{"week error", a.ListForWeek, 2020, 200, app.ErrDateFormat, 0},
-		{"month", a.ListForMonth, 2020, 1, nil, 20},
-		{"month empty", a.ListForMonth, 2020, 10, nil, 0},
-		{"month error", a.ListForMonth, 2020, 100, app.ErrDateFormat, 0},
+		{"day", a.EventListForDay, 2020, 3, nil, 1},
+		{"day empty", a.EventListForDay, 2020, 300, nil, 0},
+		{"day error", a.EventListForDay, 2020, 400, app.ErrDateFormat, 0},
+		{"week", a.EventListForWeek, 2020, 2, nil, 7},
+		{"week empty", a.EventListForWeek, 2020, 20, nil, 0},
+		{"week error", a.EventListForWeek, 2020, 200, app.ErrDateFormat, 0},
+		{"month", a.EventListForMonth, 2020, 1, nil, 20},
+		{"month empty", a.EventListForMonth, 2020, 10, nil, 0},
+		{"month error", a.EventListForMonth, 2020, 100, app.ErrDateFormat, 0},
 	}
 
 	for _, tst := range tests {

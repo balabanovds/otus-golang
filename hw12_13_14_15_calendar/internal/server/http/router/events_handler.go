@@ -63,11 +63,11 @@ func (h *eventsHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	switch head {
 	case "day":
-		respondFunc(h.app.ListForDay)
+		respondFunc(h.app.EventListForDay)
 	case "week":
-		respondFunc(h.app.ListForWeek)
+		respondFunc(h.app.EventListForWeek)
 	case "month":
-		respondFunc(h.app.ListForMonth)
+		respondFunc(h.app.EventListForMonth)
 	default:
 		http.NotFound(w, r)
 	}

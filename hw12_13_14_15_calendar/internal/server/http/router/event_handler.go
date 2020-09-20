@@ -47,7 +47,7 @@ func (h *eventHandler) handleGetEvent(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	event, err := h.app.Get(r.Context(), id)
+	event, err := h.app.GetEvent(r.Context(), id)
 	if err != nil {
 		if errors.Is(err, storage.ErrEvent404) {
 			clientError(w, r, http.StatusNotFound, err)
@@ -107,7 +107,7 @@ func (h *eventHandler) handleUpdateEvent(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	respEvent, err := h.app.Update(r.Context(), id, incomingEvent)
+	respEvent, err := h.app.UpdateEvent(r.Context(), id, incomingEvent)
 	if err != nil {
 		if errors.Is(err, storage.ErrEvent404) {
 			clientError(w, r, http.StatusNotFound, err)
@@ -127,7 +127,7 @@ func (h *eventHandler) handleDeleteEvent(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	if err := h.app.Delete(r.Context(), id); err != nil {
+	if err := h.app.DeleteEvent(r.Context(), id); err != nil {
 		if errors.Is(err, storage.ErrEvent404) {
 			clientError(w, r, http.StatusNotFound, err)
 			return

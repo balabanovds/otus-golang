@@ -32,12 +32,14 @@ func TestStorage(t *testing.T) {
 	t.Run("delete", func(t *testing.T) {
 		st := NewTestStorage(time.Now(), 0)
 		ev := storage.NewTestEvent(time.Now())
-		_, err := st.Events().Create(nil, ev)
+		ev, err := st.Events().Create(nil, ev)
 		require.NoError(t, err)
 		require.Len(t, st.Events().ListForDay(nil, time.Now()).List, 1)
 
 		st.Events().Delete(nil, ev.ID)
-		require.Len(t, st.Events().ListForDay(nil, time.Now()).List, 0)
+		list := st.Events().ListForDay(nil, time.Now())
+
+		require.Len(t, list.List, 0)
 	})
 
 	t.Run("list events for day", func(t *testing.T) {

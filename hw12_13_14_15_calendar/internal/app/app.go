@@ -18,12 +18,12 @@ type ListFunc func(ctx context.Context, year, day int) (models.EventsList, error
 
 type Application interface {
 	CreateEvent(ctx context.Context, event models.IncomingEvent) (models.Event, error)
-	Get(ctx context.Context, id int) (models.Event, error)
-	Update(ctx context.Context, id int, event models.IncomingEvent) (models.Event, error)
-	Delete(ctx context.Context, id int) error
-	ListForDay(ctx context.Context, year, day int) (models.EventsList, error)
-	ListForWeek(ctx context.Context, year, week int) (models.EventsList, error)
-	ListForMonth(ctx context.Context, year, month int) (models.EventsList, error)
+	GetEvent(ctx context.Context, id int) (models.Event, error)
+	UpdateEvent(ctx context.Context, id int, event models.IncomingEvent) (models.Event, error)
+	DeleteEvent(ctx context.Context, id int) error
+	EventListForDay(ctx context.Context, year, day int) (models.EventsList, error)
+	EventListForWeek(ctx context.Context, year, week int) (models.EventsList, error)
+	EventListForMonth(ctx context.Context, year, month int) (models.EventsList, error)
 }
 
 type App struct {
@@ -46,15 +46,15 @@ func (a *App) CreateEvent(ctx context.Context, in models.IncomingEvent) (models.
 	return a.storage.Events().Create(ctx, ev)
 }
 
-func (a *App) Get(ctx context.Context, id int) (models.Event, error) {
+func (a *App) GetEvent(ctx context.Context, id int) (models.Event, error) {
 	return a.storage.Events().Get(ctx, id)
 }
 
-func (a *App) Update(ctx context.Context, id int, in models.IncomingEvent) (models.Event, error) {
+func (a *App) UpdateEvent(ctx context.Context, id int, in models.IncomingEvent) (models.Event, error) {
 	if err := a.checkUserID(ctx, id); err != nil {
 		return models.Event{}, err
 	}
-	ev, err := a.Get(ctx, id)
+	ev, err := a.GetEvent(ctx, id)
 	if err != nil {
 		return models.Event{}, err
 	}
@@ -63,7 +63,7 @@ func (a *App) Update(ctx context.Context, id int, in models.IncomingEvent) (mode
 	return ev, err
 }
 
-func (a *App) Delete(ctx context.Context, id int) error {
+func (a *App) DeleteEvent(ctx context.Context, id int) error {
 	if err := a.checkUserID(ctx, id); err != nil {
 		return err
 	}
@@ -72,7 +72,7 @@ func (a *App) Delete(ctx context.Context, id int) error {
 	return nil
 }
 
-func (a *App) ListForDay(ctx context.Context, year, day int) (models.EventsList, error) {
+func (a *App) EventListForDay(ctx context.Context, year, day int) (models.EventsList, error) {
 	yearEnd := time.Date(year, time.December, 31, 0, 0, 0, 0, time.Local)
 	if day > yearEnd.YearDay() {
 		return models.NewEventsList(nil), ErrDateFormat
@@ -83,7 +83,7 @@ func (a *App) ListForDay(ctx context.Context, year, day int) (models.EventsList,
 	return a.storage.Events().ListForDay(ctx, date), nil
 }
 
-func (a *App) ListForWeek(ctx context.Context, year, week int) (models.EventsList, error) {
+func (a *App) EventListForWeek(ctx context.Context, year, week int) (models.EventsList, error) {
 	yearEnd := time.Date(year, time.December, 31, 0, 0, 0, 0, time.Local)
 	_, maxWeek := yearEnd.ISOWeek()
 	if week > maxWeek {
@@ -95,7 +95,7 @@ func (a *App) ListForWeek(ctx context.Context, year, week int) (models.EventsLis
 	return a.storage.Events().ListForWeek(ctx, date), nil
 }
 
-func (a *App) ListForMonth(ctx context.Context, year, month int) (models.EventsList, error) {
+func (a *App) EventListForMonth(ctx context.Context, year, month int) (models.EventsList, error) {
 	if month > 12 {
 		return models.NewEventsList(nil), ErrDateFormat
 	}
@@ -106,7 +106,7 @@ func (a *App) ListForMonth(ctx context.Context, year, month int) (models.EventsL
 }
 
 func (a *App) checkUserID(ctx context.Context, eventID int) error {
-	ev, err := a.Get(ctx, eventID)
+	ev, err := a.GetEvent(ctx, eventID)
 	if err != nil {
 		return err
 	}

@@ -23,3 +23,6 @@ migrate-up:
 
 migrate-down:
 	goose -dir migrations postgres $(CAL_STORAGE_DSN) down
+
+generate:
+	go generate ./internal/server/grpcsrv/grpc_server.go

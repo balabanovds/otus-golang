@@ -16,6 +16,15 @@ func newEventStorage(st *Storage) *eventStorage {
 	return &eventStorage{st}
 }
 
+var (
+	id = 0
+)
+
+func nextID() int {
+	id++
+	return id
+}
+
 func (s *eventStorage) Create(_ context.Context, event models.Event) (models.Event, error) {
 	s.st.mu.Lock()
 	defer s.st.mu.Unlock()
@@ -27,6 +36,7 @@ func (s *eventStorage) Create(_ context.Context, event models.Event) (models.Eve
 		}
 	}
 
+	event.ID = nextID()
 	s.st.data[event.ID] = event
 
 	return event, nil
