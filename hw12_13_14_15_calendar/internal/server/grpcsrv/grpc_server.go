@@ -30,7 +30,7 @@ func NewServer(app a.Application, cfg server.Config) *Server {
 	return &Server{
 		app: app,
 		cfg: cfg,
-		srv: grpc.NewServer(),
+		srv: grpc.NewServer(grpc.UnaryInterceptor(logInterceptor)),
 	}
 }
 
