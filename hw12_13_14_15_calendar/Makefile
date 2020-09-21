@@ -1,10 +1,25 @@
-build:
-	go build ./... -o calendar
+build: test
+	go build -o ./bin/calendar ./cmd/calendar
 
-test:
-	go test -race ./...
+test: lint
+	go test -race ./internal/...
 
-lint:
+install-lint-deps:
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.30.0
+
+lint: install-lint-deps
 	golangci-lint run ./...
 
-.PHONY: build
+.PHONY: build test lint
+
+deploy-start:
+	docker-compose -f deployments/docker-compose.yaml -p cal up -d
+
+deploy-stop:
+	docker-compose -f deployments/docker-compose.yaml -p cal down -d
+
+migrate-up:
+	goose -dir migrations postgres $(CAL_STORAGE_DSN) up
+
+migrate-down:
+	goose -dir migrations postgres $(CAL_STORAGE_DSN) down

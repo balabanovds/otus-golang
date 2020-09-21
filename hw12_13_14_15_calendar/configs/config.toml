@@ -1,0 +1,11 @@
+[logger]
+level = "INFO"
+log_file = ""
+
+[server]
+host = "localhost"
+port = 9000
+shutdown_timeout_ms = 10_000
+
+[storage]
+sql = false # if false, use in-memory db

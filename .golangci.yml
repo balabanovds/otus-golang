@@ -9,7 +9,10 @@ linters:
     - gochecknoglobals
     - gochecknoinits
     - godox
+    - gofumpt
     - gomnd
     - lll
     - nakedret
+    - nlreturn
     - wsl
+    - gci

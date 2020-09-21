@@ -1,0 +1,21 @@
+version: "3"
+
+services:
+  db:
+    image: postgres:12-alpine
+    restart: always
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: ${CAL_POSTGRES_PASSWORD}
+      ENV_1: ${CAL_STORAGE_DSN}
+    ports:
+      - '5432:5432'
+    networks:
+      - backend
+volumes:
+  dbdata:
+
+networks:
+  backend:
+    driver: bridge
