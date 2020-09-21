@@ -3,7 +3,6 @@ package main
 import (
 	"strings"
 
-	//nolint:goimports
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"github.com/knadh/koanf"
