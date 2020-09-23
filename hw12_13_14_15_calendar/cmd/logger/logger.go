@@ -1,8 +1,11 @@
-package main
+package logger
 
-import "go.uber.org/zap"
+import (
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
+	"go.uber.org/zap"
+)
 
-func configLogger(level, logFile string, production bool) error {
+func New(config config.Logger, production bool) error {
 	var cfg zap.Config
 
 	if production {
@@ -12,7 +15,7 @@ func configLogger(level, logFile string, production bool) error {
 	}
 
 	al := zap.NewAtomicLevel()
-	err := al.UnmarshalText([]byte(level))
+	err := al.UnmarshalText([]byte(config.Level))
 	if err != nil {
 		return err
 	}
@@ -20,8 +23,8 @@ func configLogger(level, logFile string, production bool) error {
 	cfg.Level.SetLevel(al.Level())
 
 	cfg.OutputPaths = []string{"stderr"}
-	if logFile != "" {
-		cfg.OutputPaths = append(cfg.OutputPaths, logFile)
+	if config.LogFile != "" {
+		cfg.OutputPaths = append(cfg.OutputPaths, config.LogFile)
 	}
 
 	l, err := cfg.Build()

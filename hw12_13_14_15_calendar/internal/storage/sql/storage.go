@@ -9,19 +9,19 @@ import (
 )
 
 type Storage struct {
-	config     storage.Config
+	dsn        string
 	db         *sqlx.DB
 	eventsRepo storage.IEventStorage
 }
 
-func New(config storage.Config) *Storage {
+func New(dsn string) *Storage {
 	return &Storage{
-		config: config,
+		dsn: dsn,
 	}
 }
 
 func (s *Storage) Connect(ctx context.Context) (err error) {
-	s.db, err = sqlx.ConnectContext(ctx, "pgx", s.config.Dsn)
+	s.db, err = sqlx.ConnectContext(ctx, "pgx", s.dsn)
 
 	return
 }

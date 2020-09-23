@@ -1,10 +1,14 @@
 package main
 
 import (
+	"context"
 	"log"
 	"os"
 	"os/signal"
+	"time"
 
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/logger"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/grpcsrv"
@@ -30,12 +34,12 @@ func main() {
 		os.Exit(1)
 	}
 
-	config, err := NewConfig(configFile)
+	config, err := config.New(configFile)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = configLogger(config.Logger.Level, config.Logger.LogFile, config.Production)
+	err = logger.New(config.Logger, config.Production)
 	if err != nil {
 		log.Fatalf("failed to configure logger: %v\n", err)
 	}
@@ -43,9 +47,19 @@ func main() {
 	var st storage.IStorage
 
 	if config.Storage.SQL {
-		st = sqlstorage.New(config.Storage)
+		st = sqlstorage.New(config.Storage.Dsn)
 	} else {
 		st = memorystorage.New()
+	}
+
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+
+	err = st.Connect(ctx)
+	if err != nil {
+		log.Println(config.Storage.Dsn)
+		zap.L().Error("failed to connect to db", zap.Error(err))
+		os.Exit(1)
 	}
 
 	calendar := app.New(st)
@@ -65,7 +79,11 @@ func main() {
 		signal.Stop(signals)
 
 		if err := srv.Stop(); err != nil {
-			zap.L().Error("failed to stop http server: " + err.Error())
+			zap.L().Error("failed to stop http server", zap.Error(err))
+		}
+
+		if err := st.Close(); err != nil {
+			zap.L().Error("failed to stop storage", zap.Error(err))
 		}
 	}()
 

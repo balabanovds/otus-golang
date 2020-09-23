@@ -2,8 +2,12 @@ package grpcsrv_test
 
 import (
 	"context"
+	"net"
+	"testing"
+	"time"
+
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/grpcsrv"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/stretchr/testify/require"
@@ -11,9 +15,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
-	"net"
-	"testing"
-	"time"
 )
 
 var (
@@ -348,7 +349,7 @@ func dialer(t *testing.T) func(context.Context, string) (net.Conn, error) {
 
 	grpcsrv.RegisterEventsServiceServer(
 		srv,
-		grpcsrv.NewServer(a, server.Config{}),
+		grpcsrv.NewServer(a, config.Server{}),
 	)
 
 	go func() {

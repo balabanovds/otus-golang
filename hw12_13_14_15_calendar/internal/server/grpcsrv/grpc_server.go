@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	a "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -22,11 +22,11 @@ import (
 
 type Server struct {
 	app a.Application
-	cfg server.Config
+	cfg config.Server
 	srv *grpc.Server
 }
 
-func NewServer(app a.Application, cfg server.Config) *Server {
+func NewServer(app a.Application, cfg config.Server) *Server {
 	return &Server{
 		app: app,
 		cfg: cfg,

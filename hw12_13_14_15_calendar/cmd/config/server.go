@@ -1,8 +1,8 @@
-package server
+package config
 
 import "time"
 
-type Config struct {
+type Server struct {
 	Host            string        `koanf:"host"`
 	Port            int           `koanf:"port"`
 	ShutdownTimeout time.Duration `koanf:"shutdown_timeout_ms"`
