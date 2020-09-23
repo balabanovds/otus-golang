@@ -9,4 +9,11 @@ shutdown_timeout_ms = 10_000
 grpc = false # if false run http rest api server
 
 [storage]
-sql = false # if false, use in-memory db
+sql = true # if false, use in-memory db
+
+
+[rmq]
+exchange_name = "cal-exchange"
+exchange_type = "direct" # direct|fanout|topic|x-custom
+routing_key = "cal-key"
+queue_name = "cal-queue"

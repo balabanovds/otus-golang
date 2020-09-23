@@ -16,7 +16,7 @@ deploy-start:
 	docker-compose -f deployments/docker-compose.yaml -p cal up -d
 
 deploy-stop:
-	docker-compose -f deployments/docker-compose.yaml -p cal down -d
+	docker-compose -f deployments/docker-compose.yaml -p cal down
 
 migrate-up:
 	goose -dir migrations postgres $(CAL_STORAGE_DSN) up
