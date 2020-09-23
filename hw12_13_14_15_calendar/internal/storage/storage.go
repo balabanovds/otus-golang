@@ -5,12 +5,13 @@ import (
 	"time"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/pkg/utils"
 )
 
 type IStorage interface {
 	Events() IEventStorage
 	Connect(ctx context.Context) error
-	Close() error
+	utils.CloseStringer
 }
 
 type IEventStorage interface {

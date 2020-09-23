@@ -9,6 +9,7 @@ import (
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	a "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"github.com/golang/protobuf/ptypes"
 	"github.com/golang/protobuf/ptypes/empty"
@@ -26,7 +27,15 @@ type Server struct {
 	srv *grpc.Server
 }
 
-func NewServer(app a.Application, cfg config.Server) *Server {
+func New(app a.Application, cfg config.Server) server.IServer {
+	return &Server{
+		app: app,
+		cfg: cfg,
+		srv: grpc.NewServer(grpc.UnaryInterceptor(logInterceptor)),
+	}
+}
+
+func NewEventsServiceServer(app a.Application, cfg config.Server) EventsServiceServer {
 	return &Server{
 		app: app,
 		cfg: cfg,
@@ -48,9 +57,14 @@ func (s *Server) Start() error {
 	return s.srv.Serve(lsn)
 }
 
-func (s *Server) Stop() error {
+func (s *Server) Close() error {
 	s.srv.GracefulStop()
+	zap.L().Info("close grpc server")
 	return nil
+}
+
+func (s *Server) String() string {
+	return "grpc server"
 }
 
 func (s *Server) CreateEvent(ctx context.Context, req *CreateEventRequest) (*Event, error) {

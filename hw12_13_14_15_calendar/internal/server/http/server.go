@@ -7,6 +7,7 @@ import (
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/http/router"
 	"go.uber.org/zap"
 )
@@ -17,7 +18,7 @@ type Server struct {
 	a      app.Application
 }
 
-func NewServer(app app.Application, config config.Server) *Server {
+func New(app app.Application, config config.Server) server.IServer {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
 		Handler: router.New(app).RootHandler(),
@@ -34,9 +35,14 @@ func (s *Server) Start() error {
 	return s.srv.ListenAndServe()
 }
 
-func (s *Server) Stop() error {
+func (s *Server) Close() error {
 	ctx, cancel := context.WithTimeout(context.Background(), s.config.ShutdownTimeout)
 	defer cancel()
+	zap.L().Info("close http server")
 
 	return s.srv.Shutdown(ctx)
+}
+
+func (s *Server) String() string {
+	return "http server"
 }

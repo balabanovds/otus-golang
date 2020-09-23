@@ -4,7 +4,7 @@ import (
 	"context"
 	"log"
 	"os"
-	"os/signal"
+	"sync"
 	"time"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
@@ -16,6 +16,7 @@ import (
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory" //nolint:gci
 	sqlstorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/sql"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/pkg/utils"
 	"github.com/spf13/pflag"
 	"go.uber.org/zap"
 )
@@ -24,16 +25,10 @@ var configFile string
 
 func init() {
 	pflag.StringVar(&configFile, "config", "./configs/config.toml", "Path to configuration file")
+	pflag.Parse()
 }
 
 func main() {
-	pflag.Parse()
-
-	if configFile == "" {
-		pflag.Usage()
-		os.Exit(1)
-	}
-
 	config, err := config.New(configFile)
 	if err != nil {
 		log.Fatal(err)
@@ -55,9 +50,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
 
-	err = st.Connect(ctx)
-	if err != nil {
-		log.Println(config.Storage.Dsn)
+	if err = st.Connect(ctx); err != nil {
 		zap.L().Error("failed to connect to db", zap.Error(err))
 		os.Exit(1)
 	}
@@ -66,28 +59,16 @@ func main() {
 
 	var srv server.IServer
 	if config.Server.Grpc {
-		srv = grpcsrv.NewServer(calendar, config.Server)
+		srv = grpcsrv.New(calendar, config.Server)
 	} else {
-		srv = internalhttp.NewServer(calendar, config.Server)
+		srv = internalhttp.New(calendar, config.Server)
 	}
 
-	go func() {
-		signals := make(chan os.Signal, 1)
-		signal.Notify(signals)
-
-		<-signals
-		signal.Stop(signals)
-
-		if err := srv.Stop(); err != nil {
-			zap.L().Error("failed to stop http server", zap.Error(err))
-		}
-
-		if err := st.Close(); err != nil {
-			zap.L().Error("failed to stop storage", zap.Error(err))
-		}
-	}()
+	var wg sync.WaitGroup
+	go utils.HandleGracefulShutdown(&wg, st, srv)
 
 	if err := srv.Start(); err != nil {
 		os.Exit(1)
 	}
+	wg.Wait()
 }

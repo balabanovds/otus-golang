@@ -349,7 +349,7 @@ func dialer(t *testing.T) func(context.Context, string) (net.Conn, error) {
 
 	grpcsrv.RegisterEventsServiceServer(
 		srv,
-		grpcsrv.NewServer(a, config.Server{}),
+		grpcsrv.NewEventsServiceServer(a, config.Server{}),
 	)
 
 	go func() {

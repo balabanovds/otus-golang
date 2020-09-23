@@ -9,7 +9,7 @@ shutdown_timeout_ms = 10_000
 grpc = false # if false run http rest api server
 
 [storage]
-sql = true # if false, use in-memory db
+sql = false# if false, use in-memory db
 
 
 [rmq]
