@@ -1,12 +1,13 @@
 package utils
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"sync"
 	"syscall"
 	"time"
+
+	"go.uber.org/zap"
 )
 
 type CloseStringer interface {
@@ -22,7 +23,7 @@ func HandleGracefulShutdown(wg *sync.WaitGroup, closers ...CloseStringer) {
 	signal.Notify(signals, syscall.SIGINT)
 
 	s := <-signals
-	log.Printf("catched signal %s. closing services", s.String())
+	zap.L().Info("closing services by signal", zap.String("signal", s.String()))
 	signal.Stop(signals)
 
 	cntr := 0
@@ -30,12 +31,17 @@ func HandleGracefulShutdown(wg *sync.WaitGroup, closers ...CloseStringer) {
 
 	for _, cl := range closers {
 		if err := cl.Close(); err != nil {
-			log.Printf("failed to stop %s: %v", cl, err)
+			zap.L().Error("faled to close",
+				zap.String("service", cl.String()),
+				zap.Error(err))
 			continue
 		}
 		cntr++
 	}
 
-	log.Printf("gracefully closed %d/%d services. took %d ns",
-		cntr, len(closers), time.Since(start))
+	zap.L().Info("close report",
+		zap.Int("closed", cntr),
+		zap.Int("total", len(closers)),
+		zap.Duration("duration", time.Since(start)),
+	)
 }

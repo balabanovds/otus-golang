@@ -7,7 +7,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
+	cfg "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/logger"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
@@ -28,21 +28,33 @@ func init() {
 	pflag.Parse()
 }
 
+type config struct {
+	Storage    cfg.Storage `koanf:"storage"`
+	Server     cfg.Server  `koanf:"server"`
+	Logger     cfg.Logger  `koanf:"logger"`
+	Production bool        `koanf:"production"`
+}
+
 func main() {
-	config, err := config.New(configFile)
+	var c config
+	err := cfg.New(configFile).Unmarshal(&c)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	err = logger.New(config.Logger, config.Production)
+	err = logger.New(c.Logger, c.Production)
 	if err != nil {
 		log.Fatalf("failed to configure logger: %v\n", err)
 	}
 
 	var st storage.IStorage
 
-	if config.Storage.SQL {
-		st = sqlstorage.New(config.Storage.Dsn)
+	if c.Storage.SQL {
+		if c.Storage.Dsn == "" {
+			zap.L().Error("CAL_STORAGE_DSN environment variable required but empty")
+			os.Exit(1)
+		}
+		st = sqlstorage.New(c.Storage.Dsn)
 	} else {
 		st = memorystorage.New()
 	}
@@ -58,10 +70,10 @@ func main() {
 	calendar := app.New(st)
 
 	var srv server.IServer
-	if config.Server.Grpc {
-		srv = grpcsrv.New(calendar, config.Server)
+	if c.Server.Grpc {
+		srv = grpcsrv.New(calendar, c.Server)
 	} else {
-		srv = internalhttp.New(calendar, config.Server)
+		srv = internalhttp.New(calendar, c.Server)
 	}
 
 	var wg sync.WaitGroup

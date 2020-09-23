@@ -14,29 +14,31 @@ const (
 )
 
 type Config struct {
-	Storage    Storage `koanf:"storage"`
-	Server     Server  `koanf:"server"`
-	Rmq        Rmq     `koanf:"rmq"`
-	Logger     Logger  `koanf:"logger"`
-	Production bool    `koanf:"production"`
+	filename string
+	k        *koanf.Koanf
 }
 
-func New(fileName string) (*Config, error) {
-	k := koanf.New(".")
-	if err := k.Load(file.Provider(fileName), toml.Parser()); err != nil {
-		return nil, err
+func New(filename string) *Config {
+	return &Config{
+		filename: filename,
+		k:        koanf.New("."),
+	}
+}
+
+func (c *Config) Unmarshal(cfg interface{}) error {
+	if err := c.k.Load(file.Provider(c.filename), toml.Parser()); err != nil {
+		return err
 	}
 
-	if err := k.Load(env.Provider(envPrefix, "_", envCallback), nil); err != nil {
-		return nil, err
+	if err := c.k.Load(env.Provider(envPrefix, "_", envCallback), nil); err != nil {
+		return err
 	}
 
-	var cfg Config
-	if err := k.Unmarshal("", &cfg); err != nil {
-		return nil, err
+	if err := c.k.Unmarshal("", &cfg); err != nil {
+		return err
 	}
 
-	return &cfg, nil
+	return nil
 }
 
 func envCallback(s string) string {
