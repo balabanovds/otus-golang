@@ -5,11 +5,13 @@ import (
 	"go.uber.org/zap"
 )
 
-func New(config config.Logger, production bool) error {
+func New(config config.Logger, production bool) (*zap.Logger, error) {
 	var cfg zap.Config
 
 	if production {
 		cfg = zap.NewProductionConfig()
+		cfg.DisableStacktrace = true
+		cfg.DisableCaller = true
 	} else {
 		cfg = zap.NewDevelopmentConfig()
 	}
@@ -17,7 +19,7 @@ func New(config config.Logger, production bool) error {
 	al := zap.NewAtomicLevel()
 	err := al.UnmarshalText([]byte(config.Level))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	cfg.Level.SetLevel(al.Level())
@@ -29,10 +31,10 @@ func New(config config.Logger, production bool) error {
 
 	l, err := cfg.Build()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	zap.ReplaceGlobals(l)
 
-	return nil
+	return l, nil
 }

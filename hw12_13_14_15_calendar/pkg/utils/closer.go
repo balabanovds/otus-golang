@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"io"
 	"os"
 	"os/signal"
 	"sync"
@@ -13,6 +14,14 @@ import (
 type CloseStringer interface {
 	Close() error
 	String() string
+}
+
+func Close(closers ...io.Closer) {
+	for _, cl := range closers {
+		if err := cl.Close(); err != nil {
+			zap.L().Error("error to close", zap.Error(err))
+		}
+	}
 }
 
 // HandleGracefulShutdown monitor for signals to graceful shutdown closers.

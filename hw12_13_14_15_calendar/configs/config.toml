@@ -9,10 +9,22 @@ shutdown_timeout_ms = 10_000
 grpc = false # if false run http rest api server
 
 [storage]
-sql = false # if false, use in-memory db
+sql = true # if false, use in-memory db
+host = "localhost" # default
+port = 5432 # default
+user = "postgres" # default
+password = "postgres" # default
+dbname = "postgres" # default
 
 [rmq]
+host = "localhost" # default
+port = 5672 # default
+user = "guest" # default
+password = "guest" # default 
 exchange_name = "cal-exchange"
 exchange_type = "direct" # direct|fanout|topic|x-custom
 routing_key = "cal-key"
 queue_name = "cal-queue"
+
+[scheduler]
+interval_sec = 3600

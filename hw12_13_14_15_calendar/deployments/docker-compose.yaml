@@ -7,8 +7,7 @@ services:
         volumes:
             - dbdata:/var/lib/postgresql/data
         environment:
-            POSTGRES_PASSWORD: ${PG_PASSWORD}
-        #      ENV_1: ${CAL_STORAGE_DSN}
+            POSTGRES_PASSWORD: ${CAL_STORAGE_PASSWORD}
         ports:
             - '5432:5432'
         networks:
@@ -17,8 +16,8 @@ services:
         image: rabbitmq:3-management-alpine
         restart: always
         environment:
-            RABBITMQ_DEFAULT_USER: ${MQ_USER}
-            RABBITMQ_DEFAULT_PASS: ${MQ_PASSWORD}
+            RABBITMQ_DEFAULT_USER: ${CAL_RMQ_USER}
+            RABBITMQ_DEFAULT_PASS: ${CAL_RMQ_PASSWORD}
         ports:
             - '5672:5672'
             - '15672:15672'

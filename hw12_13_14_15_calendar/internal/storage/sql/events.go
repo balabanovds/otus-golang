@@ -102,11 +102,31 @@ func (e *eventStorage) ListForMonth(ctx context.Context, date time.Time) models.
 	return e.filterEvents(ctx, n.BeginningOfMonth(), n.EndOfMonth())
 }
 
+func (e *eventStorage) ListBeforeDate(ctx context.Context, date time.Time) []models.Event {
+	var events []models.Event
+	err := e.s.db.SelectContext(ctx, &events, "select * from events where start_at < $1", date)
+	if err != nil {
+		zap.L().Error("db: failed to get list of events", zap.Error(err))
+	}
+
+	return events
+}
+
+func (e *eventStorage) ListByReminderBetweenDates(ctx context.Context, startDate, endDate time.Time) []models.Event {
+	var events []models.Event
+	err := e.s.db.SelectContext(ctx, &events, "select * from events where remind_at between $1 and $2", startDate, endDate)
+	if err != nil {
+		zap.L().Error("db: failed to get list of events", zap.Error(err))
+	}
+
+	return events
+}
+
 func (e *eventStorage) filterEvents(ctx context.Context, start, end time.Time) models.EventsList {
 	var events []models.Event
 	err := e.s.db.SelectContext(ctx, &events, "select * from events where start_at > $1 and start_at < $2", start, end)
 	if err != nil {
-		zap.L().Error("db: failed to get list of events")
+		zap.L().Error("db: failed to get list of events", zap.Error(err))
 	}
 	return models.NewEventsList(events)
 }

@@ -34,7 +34,7 @@ func (c *Config) Unmarshal(cfg interface{}) error {
 		return err
 	}
 
-	if err := c.k.Unmarshal("", &cfg); err != nil {
+	if err := c.k.Unmarshal("", cfg); err != nil {
 		return err
 	}
 

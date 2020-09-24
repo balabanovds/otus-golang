@@ -42,19 +42,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = logger.New(c.Logger, c.Production)
+	l, err := logger.New(c.Logger, c.Production)
 	if err != nil {
 		log.Fatalf("failed to configure logger: %v\n", err)
 	}
+	defer func() {
+		_ = l.Sync()
+	}()
 
 	var st storage.IStorage
 
 	if c.Storage.SQL {
-		if c.Storage.Dsn == "" {
-			zap.L().Error("CAL_STORAGE_DSN environment variable required but empty")
-			os.Exit(1)
-		}
-		st = sqlstorage.New(c.Storage.Dsn)
+		st = sqlstorage.New(c.Storage)
 	} else {
 		st = memorystorage.New()
 	}
@@ -75,6 +74,7 @@ func main() {
 	} else {
 		srv = internalhttp.New(calendar, c.Server)
 	}
+	defer utils.Close(st, srv)
 
 	var wg sync.WaitGroup
 	go utils.HandleGracefulShutdown(&wg, st, srv)

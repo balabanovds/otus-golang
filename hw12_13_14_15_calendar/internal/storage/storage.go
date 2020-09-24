@@ -22,4 +22,6 @@ type IEventStorage interface {
 	ListForDay(ctx context.Context, date time.Time) models.EventsList
 	ListForWeek(ctx context.Context, date time.Time) models.EventsList
 	ListForMonth(ctx context.Context, date time.Time) models.EventsList
+	ListBeforeDate(ctx context.Context, date time.Time) []models.Event
+	ListByReminderBetweenDates(ctx context.Context, startDate, endDate time.Time) []models.Event
 }

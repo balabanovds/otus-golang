@@ -2,7 +2,9 @@ package sqlstorage
 
 import (
 	"context"
+	"fmt"
 
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	_ "github.com/jackc/pgx/v4/stdlib" // import pgx
 	"github.com/jmoiron/sqlx"
@@ -15,7 +17,10 @@ type Storage struct {
 	eventsRepo storage.IEventStorage
 }
 
-func New(dsn string) storage.IStorage {
+func New(cfg config.Storage) storage.IStorage {
+	dsn := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable",
+		cfg.Host, cfg.Port, cfg.User, cfg.Password, cfg.DBName,
+	)
 	return &Storage{
 		dsn: dsn,
 	}

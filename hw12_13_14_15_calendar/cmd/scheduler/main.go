@@ -9,6 +9,7 @@ import (
 
 	cfg "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/logger"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/publisher"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/sql"
@@ -25,10 +26,11 @@ func init() {
 }
 
 type config struct {
-	Storage    cfg.Storage `koanf:"storage"`
-	Rmq        cfg.Rmq     `koanf:"rmq"`
-	Logger     cfg.Logger  `koanf:"logger"`
-	Production bool        `koanf:"production"`
+	Storage    cfg.Storage   `koanf:"storage"`
+	Rmq        cfg.Rmq       `koanf:"rmq"`
+	Scheduler  cfg.Scheduler `koanf:"scheduler"`
+	Logger     cfg.Logger    `koanf:"logger"`
+	Production bool          `koanf:"production"`
 }
 
 func main() {
@@ -38,23 +40,18 @@ func main() {
 		log.Fatal(err)
 	}
 
-	if c.Rmq.Login == "" {
-		c.Rmq.Login = "guest"
-	}
-
-	if c.Rmq.Password == "" {
-		c.Rmq.Password = "guest"
-	}
-
-	err = logger.New(c.Logger, c.Production)
+	l, err := logger.New(c.Logger, c.Production)
 	if err != nil {
 		log.Fatalf("failed to configure logger: %v\n", err)
 	}
+	defer func() {
+		_ = l.Sync()
+	}()
 
 	var st storage.IStorage
 
 	if c.Storage.SQL {
-		st = sqlstorage.New(c.Storage.Dsn)
+		st = sqlstorage.New(c.Storage)
 	} else {
 		st = memorystorage.New()
 	}
@@ -67,8 +64,18 @@ func main() {
 		os.Exit(1)
 	}
 
+	pub, err := publisher.New(c.Rmq)
+	if err != nil {
+		zap.L().Error("failed to connect to amqp", zap.Error(err))
+		os.Exit(1)
+	}
+	defer utils.Close(st, pub)
+
+	sch := newScheduler(pub, st, c)
+	sch.run(ctx)
+
 	var wg sync.WaitGroup
-	utils.HandleGracefulShutdown(&wg, st)
+	utils.HandleGracefulShutdown(&wg, st, pub)
 
 	wg.Wait()
 }
