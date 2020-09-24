@@ -1,4 +1,4 @@
-package publisher
+package amqp
 
 import (
 	"fmt"
@@ -9,16 +9,12 @@ import (
 	"go.uber.org/zap"
 )
 
-type Publisher interface {
-	Publish(body []byte) error
-}
-
 type EventPublisher struct {
 	cfg  config.Rmq
 	conn *amqp.Connection
 }
 
-func New(cfg config.Rmq) (*EventPublisher, error) {
+func NewPublisher(cfg config.Rmq) (Publisher, error) {
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/", cfg.User, cfg.Password, cfg.Host, cfg.Port)
 	conn, err := amqp.Dial(uri)
 	if err != nil {
@@ -38,15 +34,7 @@ func (p *EventPublisher) Publish(body []byte) error {
 	}
 	defer utils.Close(channel)
 
-	if err := channel.ExchangeDeclare(
-		p.cfg.ExchangeName,
-		p.cfg.ExchangeType,
-		true,  // durable
-		false, // auto-deleted
-		false, // internal
-		false, // noWait
-		nil,   // arguments
-	); err != nil {
+	if err := exchangeDeclare(channel, p.cfg.ExchangeName, p.cfg.ExchangeType); err != nil {
 		return err
 	}
 

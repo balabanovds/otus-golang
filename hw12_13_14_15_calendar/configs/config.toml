@@ -27,4 +27,4 @@ routing_key = "cal-key"
 queue_name = "cal-queue"
 
 [scheduler]
-interval_sec = 3600
+interval_sec = 60

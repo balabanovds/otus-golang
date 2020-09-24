@@ -7,6 +7,8 @@ import (
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 )
 
+// NewTestStorage crates a storage of num Events with interval of 24h betwee,
+// duration is 1 hour and ReminderDuration is 1 hour as well
 func NewTestStorage(start time.Time, num int) storage.IStorage {
 	return &Storage{
 		data: generateTestData(start, num),

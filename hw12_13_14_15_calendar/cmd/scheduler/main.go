@@ -9,7 +9,8 @@ import (
 
 	cfg "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/logger"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/publisher"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/amqp"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/scheduler"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/sql"
@@ -64,15 +65,15 @@ func main() {
 		os.Exit(1)
 	}
 
-	pub, err := publisher.New(c.Rmq)
+	pub, err := amqp.NewPublisher(c.Rmq)
 	if err != nil {
 		zap.L().Error("failed to connect to amqp", zap.Error(err))
 		os.Exit(1)
 	}
 	defer utils.Close(st, pub)
 
-	sch := newScheduler(pub, st, c)
-	sch.run(ctx)
+	sch := scheduler.New(pub, st, time.Duration(c.Scheduler.Interval)*time.Second)
+	sch.Run(ctx)
 
 	var wg sync.WaitGroup
 	utils.HandleGracefulShutdown(&wg, st, pub)

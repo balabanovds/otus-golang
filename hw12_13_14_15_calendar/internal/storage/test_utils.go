@@ -18,7 +18,7 @@ func NewTestEvent(start time.Time) models.Event {
 		Duration:       1 * time.Hour,
 		Description:    RandString(30),
 		UserID:         1,
-		RemindDuration: 0,
+		RemindDuration: 1 * time.Hour,
 	}
 }
 

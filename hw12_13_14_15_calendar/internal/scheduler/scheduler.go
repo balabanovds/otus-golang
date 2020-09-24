@@ -1,36 +1,36 @@
-package main
+package scheduler
 
 import (
 	"context"
 	"encoding/json"
 	"time"
 
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/amqp"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/publisher"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"go.uber.org/zap"
 )
 
-type scheduler struct {
-	pub      publisher.Publisher
+type Scheduler struct {
+	pub      amqp.Publisher
 	st       storage.IStorage
 	interval time.Duration
 }
 
-func newScheduler(pub publisher.Publisher, st storage.IStorage, cfg config) *scheduler {
-	return &scheduler{
+func New(pub amqp.Publisher, st storage.IStorage, interval time.Duration) *Scheduler {
+	return &Scheduler{
 		pub:      pub,
 		st:       st,
-		interval: time.Duration(cfg.Scheduler.Interval) * time.Second,
+		interval: interval,
 	}
 }
 
-func (s *scheduler) run(ctx context.Context) {
+func (s *Scheduler) Run(ctx context.Context) {
 	every(ctx, s.interval, s.publishEvents)
 	every(ctx, s.interval, s.clearEvents)
 }
 
-func (s *scheduler) publishEvents(ctx context.Context, date time.Time) {
+func (s *Scheduler) publishEvents(ctx context.Context, date time.Time) {
 	zap.L().Info("scheduler: publish start")
 	list := s.st.Events().ListByReminderBetweenDates(ctx, date, date.Add(s.interval))
 
@@ -55,7 +55,8 @@ func (s *scheduler) publishEvents(ctx context.Context, date time.Time) {
 	)
 }
 
-func (s *scheduler) clearEvents(ctx context.Context, date time.Time) {
+// clearEvents clears all events older that 1 Year since date
+func (s *Scheduler) clearEvents(ctx context.Context, date time.Time) {
 	start := time.Now()
 	date = date.AddDate(-1, 0, 0)
 
