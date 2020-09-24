@@ -25,6 +25,7 @@ exchange_name = "cal-exchange"
 exchange_type = "direct" # direct|fanout|topic|x-custom
 routing_key = "cal-key"
 queue_name = "cal-queue"
+consumer_tag = "cal-tag"
 
 [scheduler]
 interval_sec = 60

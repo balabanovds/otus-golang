@@ -1,6 +1,7 @@
 package mock
 
 import (
+	"context"
 	"encoding/json"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
@@ -16,7 +17,7 @@ func NewFakeQueue(l int) *FakeQueue {
 	}
 }
 
-func (f *FakeQueue) Publish(data []byte) error {
+func (f *FakeQueue) Publish(_ context.Context, data []byte) error {
 	var msg models.MQNotification
 	if err := json.Unmarshal(data, &msg); err != nil {
 		return err
@@ -25,7 +26,7 @@ func (f *FakeQueue) Publish(data []byte) error {
 	return nil
 }
 
-func (f *FakeQueue) Consume() (<-chan models.MQNotification, error) {
+func (f *FakeQueue) Consume(_ context.Context) (<-chan models.MQNotification, error) {
 	return f.channel, nil
 }
 

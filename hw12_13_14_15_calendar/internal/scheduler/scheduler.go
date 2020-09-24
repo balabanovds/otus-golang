@@ -42,7 +42,7 @@ func (s *Scheduler) publishEvents(ctx context.Context, date time.Time) {
 			zap.L().Error("scheduler: marshal notification", zap.Error(err))
 			continue
 		}
-		if err := s.pub.Publish(data); err != nil {
+		if err := s.pub.Publish(ctx, data); err != nil {
 			zap.L().Error("scheduler: publish event", zap.Error(err))
 			continue
 		}
@@ -55,7 +55,7 @@ func (s *Scheduler) publishEvents(ctx context.Context, date time.Time) {
 	)
 }
 
-// clearEvents clears all events older that 1 Year since date
+// clearEvents clears all events older that 1 Year since date.
 func (s *Scheduler) clearEvents(ctx context.Context, date time.Time) {
 	start := time.Now()
 	date = date.AddDate(-1, 0, 0)

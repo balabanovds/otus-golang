@@ -27,7 +27,7 @@ func TestPublish(t *testing.T) {
 
 	var list []models.MQNotification
 
-	msgCh, err := q.Consume()
+	msgCh, err := q.Consume(nil)
 	require.NoError(t, err)
 
 	for data := range msgCh {

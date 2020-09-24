@@ -1,6 +1,7 @@
 package amqp
 
 import (
+	"context"
 	"fmt"
 	"io"
 
@@ -8,13 +9,13 @@ import (
 )
 
 type Publisher interface {
-	Publish(body []byte) error
+	Publish(ctx context.Context, body []byte) error
 	io.Closer
 	fmt.Stringer
 }
 
 type Consumer interface {
-	Consume() (<-chan models.MQNotification, error)
+	Consume(ctx context.Context) (<-chan models.MQNotification, error)
 	io.Closer
 	fmt.Stringer
 }

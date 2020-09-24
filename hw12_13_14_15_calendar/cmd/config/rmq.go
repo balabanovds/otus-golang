@@ -9,4 +9,5 @@ type Rmq struct {
 	ExchangeType string `koanf:"exchange_type"`
 	RoutingKey   string `koanf:"routing_key"`
 	QueueName    string `koanf:"queue_name"`
+	Tag          string `koanf:"consumer_tag"`
 }

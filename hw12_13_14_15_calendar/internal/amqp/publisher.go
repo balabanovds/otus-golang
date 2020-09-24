@@ -1,6 +1,7 @@
 package amqp
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
@@ -20,19 +21,24 @@ func NewPublisher(cfg config.Rmq) (Publisher, error) {
 	if err != nil {
 		return nil, err
 	}
-	zap.L().Info("connected to amqp")
+	zap.L().Info("publisher: connected to amqp")
 	return &EventPublisher{
 		cfg:  cfg,
 		conn: conn,
 	}, nil
 }
 
-func (p *EventPublisher) Publish(body []byte) error {
+func (p *EventPublisher) Publish(ctx context.Context, body []byte) error {
 	channel, err := p.conn.Channel()
 	if err != nil {
 		return err
 	}
 	defer utils.Close(channel)
+
+	go func() {
+		<-ctx.Done()
+		utils.Close(channel)
+	}()
 
 	if err := exchangeDeclare(channel, p.cfg.ExchangeName, p.cfg.ExchangeType); err != nil {
 		return err
