@@ -6,6 +6,8 @@ import (
 	"os/signal"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/grpcsrv"
 	internalhttp "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/http"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory" //nolint:gci
@@ -17,7 +19,7 @@ import (
 var configFile string
 
 func init() {
-	pflag.StringVar(&configFile, "config", "/etc/calendar/config.toml", "Path to configuration file")
+	pflag.StringVar(&configFile, "config", "./configs/config.toml", "Path to configuration file")
 }
 
 func main() {
@@ -48,7 +50,12 @@ func main() {
 
 	calendar := app.New(st)
 
-	server := internalhttp.NewServer(calendar, config.Server)
+	var srv server.IServer
+	if config.Server.Grpc {
+		srv = grpcsrv.NewServer(calendar, config.Server)
+	} else {
+		srv = internalhttp.NewServer(calendar, config.Server)
+	}
 
 	go func() {
 		signals := make(chan os.Signal, 1)
@@ -57,12 +64,12 @@ func main() {
 		<-signals
 		signal.Stop(signals)
 
-		if err := server.Stop(); err != nil {
+		if err := srv.Stop(); err != nil {
 			zap.L().Error("failed to stop http server: " + err.Error())
 		}
 	}()
 
-	if err := server.Start(); err != nil {
+	if err := srv.Start(); err != nil {
 		os.Exit(1)
 	}
 }

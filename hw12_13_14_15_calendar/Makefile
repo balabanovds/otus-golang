@@ -5,7 +5,7 @@ test: lint
 	go test -race ./internal/...
 
 install-lint-deps:
-	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(GOPATH)/bin v1.30.0
+	(which golangci-lint > /dev/null) || curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(shell go env GOPATH)/bin v1.30.0
 
 lint: install-lint-deps
 	golangci-lint run ./...
@@ -23,3 +23,6 @@ migrate-up:
 
 migrate-down:
 	goose -dir migrations postgres $(CAL_STORAGE_DSN) down
+
+generate:
+	go generate ./internal/server/grpcsrv/grpc_server.go

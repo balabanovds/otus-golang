@@ -1,0 +1,70 @@
+syntax = "proto3";
+
+package event;
+
+option go_package = ".;grpcsrv";
+
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/duration.proto";
+import "google/protobuf/empty.proto";
+
+service EventsService {
+  rpc CreateEvent(CreateEventRequest) returns (Event) {}
+  rpc GetEvent(GetEventRequest) returns (Event) {}
+  rpc UpdateEvent(UpdateEventRequest) returns (Event) {}
+  rpc DeleteEvent(DeleteEventRequest) returns (google.protobuf.Empty) {}
+  rpc EventListForDay(EventListRequest) returns (EventList) {}
+  rpc EventListForWeek(EventListRequest) returns (EventList) {}
+  rpc EventListForMonth(EventListRequest) returns (EventList) {}
+}
+
+message Event {
+  int64 ID = 1;
+  string Title = 2;
+  google.protobuf.Timestamp StartTime = 3;
+  google.protobuf.Duration Duration = 4;
+  string Description = 5;
+  int64 UserID = 6;
+  google.protobuf.Duration RemindDuration = 7;
+}
+
+message IncomingEvent {
+  string Title = 1;
+  google.protobuf.Timestamp StartTime = 2;
+  google.protobuf.Duration Duration = 3;
+  string Description = 4;
+  google.protobuf.Duration RemindDuration = 5;
+}
+
+message EventList {
+  repeated Event List = 1;
+  int64 Time = 2;
+  int32 Len = 3;
+}
+
+message CreateEventRequest {
+  IncomingEvent Event = 1;
+  int64 UserID = 2;
+}
+
+message GetEventRequest {
+  int64 ID = 1;
+  int64 UserID = 2;
+}
+
+message UpdateEventRequest {
+  int64 ID = 1;
+  int64 UserID = 2;
+  IncomingEvent Event = 3;
+}
+
+message DeleteEventRequest {
+  int64 ID = 1;
+  int64 UserID = 2;
+}
+
+message EventListRequest {
+  int64 UserID = 1;
+  uint32 Year = 2;
+  uint32 Value = 3;
+}

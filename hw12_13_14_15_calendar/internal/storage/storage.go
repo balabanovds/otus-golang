@@ -3,6 +3,8 @@ package storage
 import (
 	"context"
 	"time"
+
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 )
 
 type IStorage interface {
@@ -12,11 +14,11 @@ type IStorage interface {
 }
 
 type IEventStorage interface {
-	Create(ctx context.Context, event Event) (Event, error)
-	Get(ctx context.Context, id int) (Event, error)
-	Update(ctx context.Context, id int, event Event) error
+	Create(ctx context.Context, event models.Event) (models.Event, error)
+	Get(ctx context.Context, id int) (models.Event, error)
+	Update(ctx context.Context, id int, event models.Event) error
 	Delete(ctx context.Context, id int)
-	ListForDay(ctx context.Context, date time.Time) []Event
-	ListForWeek(ctx context.Context, date time.Time) []Event
-	ListForMonth(ctx context.Context, date time.Time) []Event
+	ListForDay(ctx context.Context, date time.Time) models.EventsList
+	ListForWeek(ctx context.Context, date time.Time) models.EventsList
+	ListForMonth(ctx context.Context, date time.Time) models.EventsList
 }
