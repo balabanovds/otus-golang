@@ -17,19 +17,19 @@ type Event struct {
 }
 
 func (e *Event) CopyFromIncoming(in server.IncomingEvent) *Event {
-	if !IsZeroValue(in.Title) {
+	if in.Title != "" {
 		e.Title = in.Title
 	}
-	if !IsZeroValue(in.StartTime) {
+	if !in.StartTime.IsZero() {
 		e.StartTime = in.StartTime
 	}
-	if !IsZeroValue(in.Duration) {
+	if in.Duration != 0 {
 		e.Duration = in.Duration
 	}
-	if !IsZeroValue(in.Description) {
+	if in.Description != "" {
 		e.Description = in.Description
 	}
-	if !IsZeroValue(in.RemindDuration) {
+	if in.RemindDuration != 0 {
 		e.RemindDuration = in.RemindDuration
 	}
 
