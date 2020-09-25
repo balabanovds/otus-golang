@@ -2,11 +2,14 @@
 level = "INFO"
 log_file = ""
 
-[server]
+[http]
 host = "localhost"
 port = 9000
 shutdown_timeout_ms = 10_000
-grpc = false # if false run http rest api server
+
+[grpc]
+host = "localhost"
+port = 9001
 
 [storage]
 sql = true # if false, use in-memory db

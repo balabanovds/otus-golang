@@ -13,12 +13,12 @@ import (
 )
 
 type Server struct {
-	config config.Server
+	config config.HTTP
 	srv    *http.Server
 	a      app.Application
 }
 
-func New(app app.Application, config config.Server) server.IServer {
+func New(app app.Application, config config.HTTP) server.IServer {
 	srv := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", config.Host, config.Port),
 		Handler: router.New(app).RootHandler(),

@@ -23,11 +23,11 @@ import (
 
 type Server struct {
 	app a.Application
-	cfg config.Server
+	cfg config.GRPC
 	srv *grpc.Server
 }
 
-func New(app a.Application, cfg config.Server) server.IServer {
+func New(app a.Application, cfg config.GRPC) server.IServer {
 	return &Server{
 		app: app,
 		cfg: cfg,
@@ -35,7 +35,7 @@ func New(app a.Application, cfg config.Server) server.IServer {
 	}
 }
 
-func NewEventsServiceServer(app a.Application, cfg config.Server) EventsServiceServer {
+func NewEventsServiceServer(app a.Application, cfg config.GRPC) EventsServiceServer {
 	return &Server{
 		app: app,
 		cfg: cfg,
@@ -179,7 +179,7 @@ func copyEventToProto(event models.Event) (*Event, error) {
 	}, nil
 }
 
-func copyProtoToIncoming(from *IncomingEvent) (*models.IncomingEvent, error) {
+func copyProtoToIncoming(from *IncomingEvent) (*server.IncomingEvent, error) {
 	startTime, err := ptypes.Timestamp(from.StartTime)
 	if err != nil {
 		return nil, err
@@ -192,7 +192,7 @@ func copyProtoToIncoming(from *IncomingEvent) (*models.IncomingEvent, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &models.IncomingEvent{
+	return &server.IncomingEvent{
 		Title:          from.Title,
 		StartTime:      startTime,
 		Duration:       duration,

@@ -5,6 +5,10 @@ import (
 )
 
 type IServer interface {
-	Start() error
+	Starter
 	utils.CloseStringer
+}
+
+type Starter interface {
+	Start() error
 }

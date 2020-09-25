@@ -2,19 +2,20 @@ package app_test
 
 import (
 	"context"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
-	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
-	"github.com/stretchr/testify/require"
 	"testing"
 	"time"
+
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
+	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
+	"github.com/stretchr/testify/require"
 )
 
 func TestApp_CreateEvent(t *testing.T) {
 	a := app.New(memorystorage.NewTestStorage(time.Now(), 0))
 
 	ctx := context.WithValue(context.Background(), app.CtxKeyUserID, 1)
-	inEvent := models.IncomingEvent{
+	inEvent := server.IncomingEvent{
 		Title:          "test title",
 		StartTime:      time.Now(),
 		Duration:       300,

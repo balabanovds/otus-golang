@@ -12,8 +12,8 @@ import (
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server/http/router"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/stretchr/testify/require"
 )
@@ -94,7 +94,7 @@ func TestUpdateEvent(t *testing.T) {
 	defer srv.Close()
 
 	createdEvent := createEvent(t, srv.URL, start.AddDate(0, 0, 1))
-	updEvent := models.IncomingEvent{
+	updEvent := server.IncomingEvent{
 		Title: "upd",
 	}
 
@@ -143,7 +143,7 @@ func initSrv(elements int) *httptest.Server {
 }
 
 func createEvent(t *testing.T, url string, time time.Time) models.Event {
-	incomingEvent := storage.NewTestIncomingEvent(time)
+	incomingEvent := server.NewTestIncomingEvent(time)
 	data, err := json.Marshal(&incomingEvent)
 	require.NoError(t, err)
 

@@ -30,7 +30,8 @@ func init() {
 
 type config struct {
 	Storage    cfg.Storage `koanf:"storage"`
-	Server     cfg.Server  `koanf:"server"`
+	HTTP       cfg.HTTP    `koanf:"http"`
+	GRPC       cfg.GRPC    `koanf:"grpc"`
 	Logger     cfg.Logger  `koanf:"logger"`
 	Production bool        `koanf:"production"`
 }
@@ -68,19 +69,28 @@ func main() {
 
 	calendar := app.New(st)
 
-	var srv server.IServer
-	if c.Server.Grpc {
-		srv = grpcsrv.New(calendar, c.Server)
-	} else {
-		srv = internalhttp.New(calendar, c.Server)
-	}
-	defer utils.Close(st, srv)
+	grpcsrv := grpcsrv.New(calendar, c.GRPC)
+	httpsrv := internalhttp.New(calendar, c.HTTP)
+	defer utils.Close(st, grpcsrv, httpsrv)
 
 	var wg sync.WaitGroup
-	go utils.HandleGracefulShutdown(&wg, st, srv)
+	go utils.HandleGracefulShutdown(&wg, st, grpcsrv, httpsrv)
 
-	if err := srv.Start(); err != nil {
+	if err := fireUp(httpsrv, grpcsrv); err != nil {
 		os.Exit(1)
 	}
+
 	wg.Wait()
+}
+
+func fireUp(starters ...server.Starter) error {
+	done := make(chan error)
+	for _, st := range starters {
+		go func(s server.Starter) {
+			if err := s.Start(); err != nil {
+				done <- err
+			}
+		}(st)
+	}
+	return <-done
 }
