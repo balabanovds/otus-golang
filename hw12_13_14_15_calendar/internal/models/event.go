@@ -10,10 +10,12 @@ type Event struct {
 	ID             int           `json:"id"`
 	Title          string        `json:"title"`
 	StartTime      time.Time     `db:"start_at" json:"start_time"`
+	EndTime        time.Time     `db:"end_at"`
 	Duration       time.Duration `json:"duration"`
 	Description    string        `json:"description"`
 	UserID         int           `db:"user_id" json:"user_id"`
 	RemindDuration time.Duration `json:"remind_duration"`
+	RemindAt       time.Time     `db:"remind_at"`
 }
 
 func (e *Event) CopyFromIncoming(in server.IncomingEvent) *Event {

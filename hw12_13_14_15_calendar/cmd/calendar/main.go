@@ -4,7 +4,6 @@ import (
 	"context"
 	"log"
 	"os"
-	"sync"
 	"time"
 
 	cfg "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
@@ -73,14 +72,15 @@ func main() {
 	httpsrv := internalhttp.New(calendar, c.HTTP)
 	defer utils.Close(st, grpcsrv, httpsrv)
 
-	var wg sync.WaitGroup
-	go utils.HandleGracefulShutdown(&wg, st, grpcsrv, httpsrv)
+	doneCh := make(chan struct{})
+
+	go utils.HandleGracefulShutdown(st, grpcsrv, httpsrv)
 
 	if err := fireUp(httpsrv, grpcsrv); err != nil {
-		os.Exit(1)
+		doneCh <- struct{}{}
 	}
 
-	wg.Wait()
+	<-doneCh
 }
 
 func fireUp(starters ...server.Starter) error {

@@ -14,7 +14,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/streadway/amqp v1.0.0
 	github.com/stretchr/testify v1.6.1
-	go.uber.org/zap v1.15.0
+	go.uber.org/zap v1.16.0
 	google.golang.org/appengine v1.6.6 // indirect
 	google.golang.org/grpc v1.32.0
 	google.golang.org/protobuf v1.25.0

@@ -4,7 +4,6 @@ import (
 	"io"
 	"os"
 	"os/signal"
-	"sync"
 	"syscall"
 	"time"
 
@@ -18,16 +17,16 @@ type CloseStringer interface {
 
 func Close(closers ...io.Closer) {
 	for _, cl := range closers {
-		if err := cl.Close(); err != nil {
-			zap.L().Error("error to close", zap.Error(err))
+		if cl != nil {
+			if err := cl.Close(); err != nil {
+				zap.L().Error("error to close", zap.Error(err))
+			}
 		}
 	}
 }
 
 // HandleGracefulShutdown monitor for signals to graceful shutdown closers.
-func HandleGracefulShutdown(wg *sync.WaitGroup, closers ...CloseStringer) {
-	wg.Add(1)
-	defer wg.Done()
+func HandleGracefulShutdown(closers ...CloseStringer) {
 	signals := make(chan os.Signal, 1)
 	signal.Notify(signals, syscall.SIGINT)
 
@@ -40,7 +39,7 @@ func HandleGracefulShutdown(wg *sync.WaitGroup, closers ...CloseStringer) {
 
 	for _, cl := range closers {
 		if err := cl.Close(); err != nil {
-			zap.L().Error("faled to close",
+			zap.L().Error("failed to close",
 				zap.String("service", cl.String()),
 				zap.Error(err))
 			continue
@@ -53,4 +52,15 @@ func HandleGracefulShutdown(wg *sync.WaitGroup, closers ...CloseStringer) {
 		zap.Int("total", len(closers)),
 		zap.Duration("duration", time.Since(start)),
 	)
+	os.Exit(0)
+}
+
+func HandleSigterm(doneCh chan struct{}) {
+	signals := make(chan os.Signal, 1)
+	signal.Notify(signals, syscall.SIGINT)
+
+	s := <-signals
+	zap.L().Info("closing services by signal", zap.String("signal", s.String()))
+	signal.Stop(signals)
+	doneCh <- struct{}{}
 }

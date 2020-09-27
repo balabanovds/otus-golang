@@ -7,11 +7,11 @@ import (
 
 func New(config config.Logger, production bool) (*zap.Logger, error) {
 	var cfg zap.Config
+	cfg.DisableStacktrace = true
+	cfg.DisableCaller = true
 
 	if production {
 		cfg = zap.NewProductionConfig()
-		cfg.DisableStacktrace = true
-		cfg.DisableCaller = true
 	} else {
 		cfg = zap.NewDevelopmentConfig()
 	}

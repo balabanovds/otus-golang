@@ -7,15 +7,15 @@ import (
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/pkg/utils"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
 )
 
 type EventConsumer struct {
-	cfg  config.Rmq
-	conn *amqp.Connection
-	done chan error
+	cfg     config.Rmq
+	conn    *amqp.Connection
+	channel Channel
+	done    chan error
 }
 
 func NewConsumer(cfg config.Rmq) (Consumer, error) {
@@ -24,7 +24,7 @@ func NewConsumer(cfg config.Rmq) (Consumer, error) {
 	if err != nil {
 		return nil, fmt.Errorf("consume: dial: %w", err)
 	}
-	zap.L().Info("consumer: connected to amqp")
+	infoLog("connected to amqp")
 	return &EventConsumer{
 		conn: conn,
 		cfg:  cfg,
@@ -32,25 +32,23 @@ func NewConsumer(cfg config.Rmq) (Consumer, error) {
 	}, nil
 }
 
+func (c *EventConsumer) Channel() Channel {
+	if c.conn == nil {
+		panic("connection is nil")
+	}
+	if c.channel == nil {
+		c.channel = newChannel(c.cfg, c.conn)
+	}
+	return c.channel
+}
+
 func (c *EventConsumer) Consume(ctx context.Context) (<-chan models.MQNotification, error) {
+	if c.channel == nil {
+		return nil, ErrChannelNil
+	}
 	msgCh := make(chan models.MQNotification)
 
-	channel, err := c.conn.Channel()
-	if err != nil {
-		return nil, fmt.Errorf("consumer: create channel: %w", err)
-	}
-	defer utils.Close(channel)
-
-	go func() {
-		<-ctx.Done()
-		utils.Close(channel)
-	}()
-
-	if err := exchangeDeclare(channel, c.cfg.ExchangeName, c.cfg.ExchangeType); err != nil {
-		return nil, fmt.Errorf("consumer: exchange declare: %w", err)
-	}
-
-	deliveries, err := c.consumeQueue(channel, c.cfg.QueueName)
+	deliveries, err := c.consumeQueue(c.channel.Get(), c.cfg.QueueName)
 	if err != nil {
 		return nil, fmt.Errorf("consumer: queue consume: %w", err)
 	}
@@ -59,6 +57,7 @@ func (c *EventConsumer) Consume(ctx context.Context) (<-chan models.MQNotificati
 		for {
 			select {
 			case <-ctx.Done():
+				close(msgCh)
 				return
 			case d := <-deliveries:
 				var msg models.MQNotification
@@ -68,6 +67,7 @@ func (c *EventConsumer) Consume(ctx context.Context) (<-chan models.MQNotificati
 				}
 				select {
 				case <-ctx.Done():
+					close(msgCh)
 					return
 				case msgCh <- msg:
 				}
@@ -98,6 +98,7 @@ func (c *EventConsumer) consumeQueue(channel *amqp.Channel, queueName string) (<
 	if err != nil {
 		return nil, fmt.Errorf("consumer: declare queue: %w", err)
 	}
+	infoLog("queue created")
 
 	if err = channel.QueueBind(
 		queue.Name,         // name of the queue
@@ -108,6 +109,7 @@ func (c *EventConsumer) consumeQueue(channel *amqp.Channel, queueName string) (<
 	); err != nil {
 		return nil, fmt.Errorf("consumer: queue bind: %w", err)
 	}
+	infoLog("queue binded")
 
 	deliveries, err := channel.Consume(
 		queue.Name, // name
@@ -123,4 +125,8 @@ func (c *EventConsumer) consumeQueue(channel *amqp.Channel, queueName string) (<
 	}
 
 	return deliveries, nil
+}
+
+func infoLog(msg string) {
+	zap.L().Info("consumer", zap.String("msg", msg))
 }

@@ -4,13 +4,11 @@ import (
 	"context"
 	"log"
 	"os"
-	"sync"
 	"time"
 
 	cfg "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/logger"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/amqp"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/scheduler"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/sql"
@@ -57,8 +55,8 @@ func main() {
 		st = memorystorage.New()
 	}
 
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
+	ctx, cancelT := context.WithTimeout(context.Background(), 15*time.Second)
+	defer cancelT()
 
 	if err = st.Connect(ctx); err != nil {
 		zap.L().Error("failed to connect to db", zap.Error(err))
@@ -72,11 +70,15 @@ func main() {
 	}
 	defer utils.Close(st, pub)
 
-	sch := scheduler.New(pub, st, time.Duration(c.Scheduler.Interval)*time.Second)
-	sch.Run(ctx)
+	ctx, cancelC := context.WithCancel(context.Background())
+	defer cancelC()
 
-	var wg sync.WaitGroup
-	utils.HandleGracefulShutdown(&wg, st, pub)
+	sch := new(pub, st, time.Duration(c.Scheduler.Interval)*time.Second)
+	sch.run(ctx)
+	doneCh := make(chan struct{})
+	go utils.HandleGracefulShutdown(st, pub, sch)
+	// go every(ctx, doneCh, time.Second, publishEvents)
+	// go every(ctx, doneCh, time.Second, clearEvents)
 
-	wg.Wait()
+	<-doneCh
 }

@@ -1,4 +1,4 @@
-package scheduler
+package main
 
 import (
 	"context"
@@ -17,18 +17,17 @@ var (
 )
 
 func TestPublish(t *testing.T) {
-	q := mock.NewFakeQueue(5)
+	pub := mock.NewFakeQueue(5)
 
 	st := memorystorage.NewTestStorage(startDate, 10)
 
-	scheduler := New(q, st, interval)
+	scheduler := new(pub, st, interval)
 	scheduler.publishEvents(context.Background(), startDate)
-	q.Close()
+	pub.Close()
 
 	var list []models.MQNotification
 
-	msgCh, err := q.Consume(nil)
-	require.NoError(t, err)
+	msgCh, _ := pub.Consume(nil)
 
 	for data := range msgCh {
 		list = append(list, data)
@@ -45,7 +44,7 @@ func TestClearOldEvents(t *testing.T) {
 	list := st.Events().ListBeforeDate(context.Background(), now)
 	require.Len(t, list, 10)
 
-	scheduler := New(nil, st, interval)
+	scheduler := new(nil, st, interval)
 	scheduler.clearEvents(context.Background(), now)
 
 	list = st.Events().ListBeforeDate(context.Background(), now)

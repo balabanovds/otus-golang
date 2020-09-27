@@ -5,19 +5,19 @@ import (
 	"fmt"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/pkg/utils"
-	"github.com/streadway/amqp"
+	a "github.com/streadway/amqp"
 	"go.uber.org/zap"
 )
 
 type EventPublisher struct {
-	cfg  config.Rmq
-	conn *amqp.Connection
+	cfg     config.Rmq
+	conn    *a.Connection
+	channel Channel
 }
 
 func NewPublisher(cfg config.Rmq) (Publisher, error) {
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/", cfg.User, cfg.Password, cfg.Host, cfg.Port)
-	conn, err := amqp.Dial(uri)
+	conn, err := a.Dial(uri)
 	if err != nil {
 		return nil, err
 	}
@@ -28,33 +28,32 @@ func NewPublisher(cfg config.Rmq) (Publisher, error) {
 	}, nil
 }
 
+func (p *EventPublisher) Channel() Channel {
+	if p.conn == nil {
+		panic("connection is nil")
+	}
+	if p.channel == nil {
+		p.channel = newChannel(p.cfg, p.conn)
+	}
+	return p.channel
+}
+
 func (p *EventPublisher) Publish(ctx context.Context, body []byte) error {
-	channel, err := p.conn.Channel()
-	if err != nil {
-		return err
-	}
-	defer utils.Close(channel)
-
-	go func() {
-		<-ctx.Done()
-		utils.Close(channel)
-	}()
-
-	if err := exchangeDeclare(channel, p.cfg.ExchangeName, p.cfg.ExchangeType); err != nil {
-		return err
+	if p.channel == nil {
+		return ErrChannelNil
 	}
 
-	if err := channel.Publish(
+	if err := p.channel.Get().Publish(
 		p.cfg.ExchangeName,
 		p.cfg.RoutingKey,
 		false,
 		false,
-		amqp.Publishing{
-			Headers:         amqp.Table{},
+		a.Publishing{
+			Headers:         a.Table{},
 			ContentType:     "application/json",
 			ContentEncoding: "utf8",
 			Body:            body,
-			DeliveryMode:    amqp.Persistent,
+			DeliveryMode:    a.Persistent,
 			Priority:        0,
 		},
 	); err != nil {

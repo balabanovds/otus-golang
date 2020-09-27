@@ -56,7 +56,7 @@ func (e *eventStorage) Create(ctx context.Context, ev models.Event) (models.Even
 
 func (e *eventStorage) Get(ctx context.Context, id int) (models.Event, error) {
 	event := models.Event{}
-	err := e.s.db.GetContext(ctx, &event, "select * from events where id = $1", id)
+	err := e.s.db.GetContext(ctx, &event, "select id, title, start_at, end_at, description, user_id, remind_at from events where id = $1", id)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
 			return models.Event{}, storage.ErrEvent404
@@ -104,7 +104,7 @@ func (e *eventStorage) ListForMonth(ctx context.Context, date time.Time) models.
 
 func (e *eventStorage) ListBeforeDate(ctx context.Context, date time.Time) []models.Event {
 	var events []models.Event
-	err := e.s.db.SelectContext(ctx, &events, "select * from events where start_at < $1", date)
+	err := e.s.db.SelectContext(ctx, &events, "select id, title, start_at, end_at, description, user_id, remind_at from events where start_at < $1", date)
 	if err != nil {
 		zap.L().Error("db: failed to get list of events", zap.Error(err))
 	}
@@ -114,7 +114,7 @@ func (e *eventStorage) ListBeforeDate(ctx context.Context, date time.Time) []mod
 
 func (e *eventStorage) ListByReminderBetweenDates(ctx context.Context, startDate, endDate time.Time) []models.Event {
 	var events []models.Event
-	err := e.s.db.SelectContext(ctx, &events, "select * from events where remind_at between $1 and $2", startDate, endDate)
+	err := e.s.db.SelectContext(ctx, &events, "select id, title, start_at, end_at, description, user_id, remind_at from events where remind_at between $1 and $2", startDate, endDate)
 	if err != nil {
 		zap.L().Error("db: failed to get list of events", zap.Error(err))
 	}
@@ -124,7 +124,7 @@ func (e *eventStorage) ListByReminderBetweenDates(ctx context.Context, startDate
 
 func (e *eventStorage) filterEvents(ctx context.Context, start, end time.Time) models.EventsList {
 	var events []models.Event
-	err := e.s.db.SelectContext(ctx, &events, "select * from events where start_at > $1 and start_at < $2", start, end)
+	err := e.s.db.SelectContext(ctx, &events, "select id, title, start_at, end_at, description, user_id, remind_at from events where start_at > $1 and start_at < $2", start, end)
 	if err != nil {
 		zap.L().Error("db: failed to get list of events", zap.Error(err))
 	}
