@@ -1,5 +1,13 @@
-build: test
+build: test build-calendar build-scheduler build-sender
+
+build-calendar:
 	go build -o ./bin/calendar ./cmd/calendar
+
+build-scheduler:
+	go build -o ./bin/calendar_scheduler ./cmd/scheduler
+
+build-sender:
+	go build -o ./bin/calendar_sender ./cmd/sender
 
 test: lint
 	go test -race ./internal/...
