@@ -1,4 +1,4 @@
-package amqp
+package rabbitmq
 
 import (
 	"context"
@@ -7,6 +7,7 @@ import (
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/mq"
 	"github.com/streadway/amqp"
 	"go.uber.org/zap"
 )
@@ -14,11 +15,11 @@ import (
 type EventConsumer struct {
 	cfg     config.Rmq
 	conn    *amqp.Connection
-	channel Channel
+	channel mq.Channel
 	done    chan error
 }
 
-func NewConsumer(cfg config.Rmq) (Consumer, error) {
+func NewConsumer(cfg config.Rmq) (mq.Consumer, error) {
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/", cfg.User, cfg.Password, cfg.Host, cfg.Port)
 	conn, err := amqp.Dial(uri)
 	if err != nil {
@@ -32,7 +33,7 @@ func NewConsumer(cfg config.Rmq) (Consumer, error) {
 	}, nil
 }
 
-func (c *EventConsumer) Channel() Channel {
+func (c *EventConsumer) Channel() mq.Channel {
 	if c.conn == nil {
 		panic("connection is nil")
 	}
@@ -42,11 +43,19 @@ func (c *EventConsumer) Channel() Channel {
 	return c.channel
 }
 
-func (c *EventConsumer) Consume(ctx context.Context) (<-chan models.MQNotification, error) {
+func (c *EventConsumer) Consume(ctx context.Context) (<-chan mq.Message, error) {
 	if c.channel == nil {
-		return nil, ErrChannelNil
+		return nil, mq.ErrChannelNil
 	}
-	msgCh := make(chan models.MQNotification)
+
+	go func() {
+		<-ctx.Done()
+		if err := c.channel.Close(); err != nil {
+			zap.L().Error("close channel", zap.Error(err))
+		}
+	}()
+
+	msgCh := make(chan mq.Message)
 
 	deliveries, err := c.consumeQueue(c.channel.Get(), c.cfg.QueueName)
 	if err != nil {
@@ -60,11 +69,21 @@ func (c *EventConsumer) Consume(ctx context.Context) (<-chan models.MQNotificati
 				close(msgCh)
 				return
 			case d := <-deliveries:
-				var msg models.MQNotification
-				if err := json.Unmarshal(d.Body, &msg); err != nil {
-					zap.L().Error("consumer: unmarshal message", zap.Error(err))
-					continue
+				var notif models.MQNotification
+				err := json.Unmarshal(d.Body, &notif)
+
+				msg := mq.Message{
+					Data: notif,
+					Err:  err,
 				}
+
+				if err == nil {
+					if err := d.Ack(false); err != nil {
+						zap.L().Error("delivery ack", zap.Error(err))
+						continue
+					}
+				}
+
 				select {
 				case <-ctx.Done():
 					close(msgCh)
@@ -100,6 +119,10 @@ func (c *EventConsumer) consumeQueue(channel *amqp.Channel, queueName string) (<
 	}
 	infoLog("queue created")
 
+	if err := channel.Qos(1, 0, false); err != nil {
+		return nil, err
+	}
+
 	if err = channel.QueueBind(
 		queue.Name,         // name of the queue
 		c.cfg.RoutingKey,   // bindingKey
@@ -114,7 +137,7 @@ func (c *EventConsumer) consumeQueue(channel *amqp.Channel, queueName string) (<
 	deliveries, err := channel.Consume(
 		queue.Name, // name
 		c.cfg.Tag,  // consumerTag,
-		true,       // autoAck
+		false,      // autoAck
 		false,      // exclusive
 		false,      // noLocal
 		false,      // noWait

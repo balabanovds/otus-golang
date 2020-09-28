@@ -4,8 +4,8 @@ import (
 	"context"
 	"encoding/json"
 
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/amqp"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/mq"
 )
 
 type FakeQueue struct {
@@ -18,7 +18,7 @@ func NewFakeQueue(l int) *FakeQueue {
 	}
 }
 
-func (f *FakeQueue) Channel() amqp.Channel {
+func (f *FakeQueue) Channel() mq.Channel {
 	return nil
 }
 

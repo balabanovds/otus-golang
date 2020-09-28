@@ -3,6 +3,7 @@ module github.com/balabanovds/otus-golang/hw12_13_14_15_calendar
 go 1.14
 
 require (
+	github.com/NeowayLabs/wabbit v0.0.0-20200916102526-a7d9beea8caa
 	github.com/golang/protobuf v1.4.1
 	github.com/jackc/pgx/v4 v4.8.1
 	github.com/jinzhu/now v1.1.1

@@ -8,7 +8,7 @@ import (
 
 	cfg "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/logger"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/amqp"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/mq/rabbitmq"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
 	sqlstorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/sql"
@@ -63,7 +63,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	pub, err := amqp.NewPublisher(c.Rmq)
+	pub, err := rabbitmq.NewPublisher(c.Rmq)
 	if err != nil {
 		zap.L().Error("failed to connect to amqp", zap.Error(err))
 		os.Exit(1)

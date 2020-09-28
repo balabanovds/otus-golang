@@ -5,8 +5,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/amqp/mock"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/mq/mock"
 	memorystorage "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage/memory"
 	"github.com/stretchr/testify/require"
 )

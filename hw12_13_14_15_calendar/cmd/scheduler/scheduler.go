@@ -5,21 +5,21 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/amqp"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/mq"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 	"go.uber.org/zap"
 	"go.uber.org/zap/zapcore"
 )
 
 type scheduler struct {
-	pub      amqp.Publisher
+	pub      mq.Publisher
 	st       storage.IStorage
 	interval time.Duration
 	doneCh   chan struct{}
 }
 
-func new(pub amqp.Publisher, st storage.IStorage, interval time.Duration) *scheduler {
+func new(pub mq.Publisher, st storage.IStorage, interval time.Duration) *scheduler {
 	return &scheduler{
 		pub:      pub,
 		st:       st,

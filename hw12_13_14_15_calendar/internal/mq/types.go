@@ -1,4 +1,4 @@
-package amqp
+package mq
 
 import (
 	"context"
@@ -9,6 +9,11 @@ import (
 	a "github.com/streadway/amqp"
 )
 
+type Message struct {
+	Data models.MQNotification
+	Err  error
+}
+
 type Publisher interface {
 	Channel() Channel
 	Publish(ctx context.Context, body []byte) error
@@ -18,7 +23,7 @@ type Publisher interface {
 
 type Consumer interface {
 	Channel() Channel
-	Consume(ctx context.Context) (<-chan models.MQNotification, error)
+	Consume(ctx context.Context) (<-chan Message, error)
 	io.Closer
 	fmt.Stringer
 }

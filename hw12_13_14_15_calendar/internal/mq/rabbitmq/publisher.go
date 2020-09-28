@@ -1,23 +1,24 @@
-package amqp
+package rabbitmq
 
 import (
 	"context"
 	"fmt"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
-	a "github.com/streadway/amqp"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/mq"
+	"github.com/streadway/amqp"
 	"go.uber.org/zap"
 )
 
 type EventPublisher struct {
 	cfg     config.Rmq
-	conn    *a.Connection
-	channel Channel
+	conn    *amqp.Connection
+	channel mq.Channel
 }
 
-func NewPublisher(cfg config.Rmq) (Publisher, error) {
+func NewPublisher(cfg config.Rmq) (mq.Publisher, error) {
 	uri := fmt.Sprintf("amqp://%s:%s@%s:%d/", cfg.User, cfg.Password, cfg.Host, cfg.Port)
-	conn, err := a.Dial(uri)
+	conn, err := amqp.Dial(uri)
 	if err != nil {
 		return nil, err
 	}
@@ -28,7 +29,7 @@ func NewPublisher(cfg config.Rmq) (Publisher, error) {
 	}, nil
 }
 
-func (p *EventPublisher) Channel() Channel {
+func (p *EventPublisher) Channel() mq.Channel {
 	if p.conn == nil {
 		panic("connection is nil")
 	}
@@ -40,7 +41,7 @@ func (p *EventPublisher) Channel() Channel {
 
 func (p *EventPublisher) Publish(ctx context.Context, body []byte) error {
 	if p.channel == nil {
-		return ErrChannelNil
+		return mq.ErrChannelNil
 	}
 
 	if err := p.channel.Get().Publish(
@@ -48,12 +49,12 @@ func (p *EventPublisher) Publish(ctx context.Context, body []byte) error {
 		p.cfg.RoutingKey,
 		false,
 		false,
-		a.Publishing{
-			Headers:         a.Table{},
+		amqp.Publishing{
+			Headers:         amqp.Table{},
 			ContentType:     "application/json",
 			ContentEncoding: "utf8",
 			Body:            body,
-			DeliveryMode:    a.Persistent,
+			DeliveryMode:    amqp.Persistent,
 			Priority:        0,
 		},
 	); err != nil {
