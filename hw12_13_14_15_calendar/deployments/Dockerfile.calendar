@@ -1,0 +1,22 @@
+FROM golang:1.14-alpine as builder
+WORKDIR /app
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/calendar
+
+### second stage
+FROM alpine:3
+ENV CAL_HTTP_HOST localhost
+ENV CAL_HTTP_PORT 9000
+ENV CAL_GRPC_HOST localhost
+ENV CAL_GRPC_PORT 9001
+ENV CAL_STORAGE_HOST localhost
+ENV CAL_STORAGE_PORT 5432
+ENV CAL_STORAGE_USER postgres
+ENV CAL_STORAGE_PASSWORD postgres
+ENV CAL_STORAGE_DBNAME postgres
+WORKDIR /app
+COPY --from=builder /app/main .
+COPY ./configs .
+EXPOSE $CAL_HTTP_PORT
+EXPOSE $CAL_GRPC_PORT
+CMD [ "./main", "--config", "config.toml" ]

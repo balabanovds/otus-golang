@@ -20,11 +20,15 @@ lint: install-lint-deps
 
 .PHONY: build test lint
 
-deploy-start:
+up:
 	docker-compose -f deployments/docker-compose.yaml -p cal up -d
 
-deploy-stop:
+down:
 	docker-compose -f deployments/docker-compose.yaml -p cal down
+
+logs:
+	docker-compose -f deployments/docker-compose.yaml -p cal logs -f
+
 
 migrate-up:
 	goose -dir migrations postgres $(CAL_STORAGE_DSN) up
