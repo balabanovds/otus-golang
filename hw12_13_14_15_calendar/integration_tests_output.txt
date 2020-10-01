@@ -1,0 +1,37 @@
+integration-tests_1  | === RUN   TestListEvents
+integration-tests_1  | === RUN   TestListEvents//yea/2020/day/3
+integration-tests_1  | === RUN   TestListEvents//year/2020a/day/3
+integration-tests_1  | === RUN   TestListEvents//year/2020/day/3q
+integration-tests_1  | === RUN   TestListEvents//year/2020/day/400
+integration-tests_1  | === RUN   TestListEvents//year/2020/week/100
+integration-tests_1  | === RUN   TestListEvents//year/2020/month/100
+integration-tests_1  | === RUN   TestListEvents//year/2020/day/272
+integration-tests_1  | === RUN   TestListEvents//year/2020/day/300
+integration-tests_1  | === RUN   TestListEvents//year/2020/week/40
+integration-tests_1  | === RUN   TestListEvents//year/2020/week/20
+integration-tests_1  | === RUN   TestListEvents//year/2020/month/9
+integration-tests_1  | === RUN   TestListEvents//year/2020/month/11
+integration-tests_1  | --- PASS: TestListEvents (0.09s)
+integration-tests_1  |     --- PASS: TestListEvents//yea/2020/day/3 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020a/day/3 (0.01s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/day/3q (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/day/400 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/week/100 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/month/100 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/day/272 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/day/300 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/week/40 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/week/20 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/month/9 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/month/11 (0.00s)
+integration-tests_1  | === RUN   TestCreateEvent
+integration-tests_1  | --- PASS: TestCreateEvent (0.04s)
+integration-tests_1  | === RUN   TestGetEvent
+integration-tests_1  | --- PASS: TestGetEvent (0.04s)
+integration-tests_1  | === RUN   TestUpdateEvent
+integration-tests_1  | --- PASS: TestUpdateEvent (0.04s)
+integration-tests_1  | === RUN   TestDeleteEvent
+integration-tests_1  | --- PASS: TestDeleteEvent (0.04s)
+integration-tests_1  | PASS
+integration-tests_1  | ok       github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/tests/integration    0.295s
+tests_integration-tests_1 exited with code 0

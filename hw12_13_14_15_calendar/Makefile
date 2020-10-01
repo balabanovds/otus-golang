@@ -21,13 +21,13 @@ lint: install-lint-deps
 .PHONY: build test lint
 
 up:
-	docker-compose -f deployments/docker-compose.yaml -p cal up -d
+	docker-compose -f ./deployments/docker-compose.yaml -f ./deployments/docker-compose.prod.yml -p cal up -d
 
 down:
-	docker-compose -f deployments/docker-compose.yaml -p cal down
+	docker-compose -f ./deployments/docker-compose.yaml -f ./deployments/docker-compose.prod.yml -p cal down
 
 logs:
-	docker-compose -f deployments/docker-compose.yaml -p cal logs -f
+	docker-compose -f ./deployments/docker-compose.yaml -f ./deployments/docker-compose.prod.yml -p cal logs
 
 
 migrate-up:

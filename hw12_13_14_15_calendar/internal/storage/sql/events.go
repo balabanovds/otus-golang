@@ -22,7 +22,7 @@ func newEventStorage(s *Storage) storage.IEventStorage {
 
 func (e *eventStorage) Create(ctx context.Context, ev models.Event) (models.Event, error) {
 	var cntr int
-	err := e.s.db.GetContext(ctx, &cntr, "select count(*) from events where start_at < $1 and end_at > $1", ev.StartTime)
+	err := e.s.db.GetContext(ctx, &cntr, "select count(*) from events where start_at < $1 and end_at > $1", ev.StartAt)
 	if err != nil {
 		return models.Event{}, err
 	}
@@ -30,23 +30,13 @@ func (e *eventStorage) Create(ctx context.Context, ev models.Event) (models.Even
 		return models.Event{}, storage.ErrEventExists
 	}
 
-	res, err := e.s.db.NamedExecContext(ctx, "insert into events (title, start_at, end_at, description, user_id, remind_at) "+
-		"values (:title, :start_at, :end_at, :descr, :uid, :remind_at) returning id",
-		map[string]interface{}{
-			"title":     ev.Title,
-			"start_at":  ev.StartTime,
-			"end_at":    ev.StartTime.Add(ev.Duration),
-			"descr":     ev.Description,
-			"uid":       ev.UserID,
-			"remind_at": ev.StartTime.Add(-ev.RemindDuration),
-		})
+	var id int64
+	err = e.s.db.QueryRowContext(ctx, "insert into events (title, start_at, end_at, description, user_id, remind_at) "+
+		"values ($1, $2, $3, $4, $5, $6) returning id",
+		ev.Title, ev.StartAt, ev.EndAt,
+		ev.Description, ev.UserID, ev.RemindAt).Scan(&id)
 	if err != nil {
 		return models.Event{}, err
-	}
-
-	id, err := res.LastInsertId()
-	if err != nil {
-		return ev, err
 	}
 
 	ev.ID = int(id)
@@ -72,10 +62,10 @@ func (e *eventStorage) Update(ctx context.Context, id int, event models.Event) e
 		map[string]interface{}{
 			"id":        id,
 			"title":     event.Title,
-			"start_at":  event.StartTime,
-			"end_at":    event.StartTime.Add(event.Duration),
+			"start_at":  event.StartAt,
+			"end_at":    event.EndAt,
 			"descr":     event.Description,
-			"remind_at": event.StartTime.Add(-event.RemindDuration),
+			"remind_at": event.RemindAt,
 		})
 	return err
 }
@@ -124,7 +114,8 @@ func (e *eventStorage) ListByReminderBetweenDates(ctx context.Context, startDate
 
 func (e *eventStorage) filterEvents(ctx context.Context, start, end time.Time) models.EventsList {
 	var events []models.Event
-	err := e.s.db.SelectContext(ctx, &events, "select id, title, start_at, end_at, description, user_id, remind_at from events where start_at > $1 and start_at < $2", start, end)
+	err := e.s.db.SelectContext(ctx, &events, "select id, title, start_at, end_at, description, user_id, remind_at from events "+
+		"where start_at >= $1 and start_at < $2", start, end)
 	if err != nil {
 		zap.L().Error("db: failed to get list of events", zap.Error(err))
 	}

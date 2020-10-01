@@ -68,15 +68,15 @@ func main() {
 
 	calendar := app.New(st)
 
-	grpcsrv := grpcsrv.New(calendar, c.GRPC)
+	grpc := grpcsrv.New(calendar, c.GRPC)
 	httpsrv := internalhttp.New(calendar, c.HTTP)
-	defer utils.Close(st, grpcsrv, httpsrv)
+	defer utils.Close(st, grpc, httpsrv)
 
 	doneCh := make(chan struct{})
 
-	go utils.HandleGracefulShutdown(st, grpcsrv, httpsrv)
+	go utils.HandleGracefulShutdown(st, grpc, httpsrv)
 
-	if err := fireUp(httpsrv, grpcsrv); err != nil {
+	if err := fireUp(httpsrv, grpc); err != nil {
 		doneCh <- struct{}{}
 	}
 

@@ -4,6 +4,6 @@ DSN="postgres://${CAL_STORAGE_USER}:${CAL_STORAGE_PASSWORD}@${CAL_STORAGE_HOST}:
 
 for i in $(seq 1 5); do
   echo "attempt $i: $DSN"
-  ./goose postgres "$DSN" up && break
+  ./goose postgres "$DSN" down && ./goose postgres "$DSN" up && break
   sleep 1
 done

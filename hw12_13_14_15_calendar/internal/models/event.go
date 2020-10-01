@@ -7,33 +7,29 @@ import (
 )
 
 type Event struct {
-	ID             int           `json:"id"`
-	Title          string        `json:"title"`
-	StartTime      time.Time     `db:"start_at" json:"start_time"`
-	EndTime        time.Time     `db:"end_at"`
-	Duration       time.Duration `json:"duration"`
-	Description    string        `json:"description"`
-	UserID         int           `db:"user_id" json:"user_id"`
-	RemindDuration time.Duration `json:"remind_duration"`
-	RemindAt       time.Time     `db:"remind_at"`
+	ID          int       `json:"id"`
+	Title       string    `json:"title"`
+	StartAt     time.Time `db:"start_at" json:"start_time"`
+	EndAt       time.Time `db:"end_at"`
+	Description string    `json:"description"`
+	UserID      int       `db:"user_id" json:"user_id"`
+	RemindAt    time.Time `db:"remind_at"`
 }
 
 func (e *Event) CopyFromIncoming(in server.IncomingEvent) *Event {
 	if in.Title != "" {
 		e.Title = in.Title
 	}
-	if !in.StartTime.IsZero() {
-		e.StartTime = in.StartTime
+	if !in.StartAt.IsZero() {
+		e.StartAt = in.StartAt
 	}
 	if in.Duration != 0 {
-		e.Duration = in.Duration
+		e.EndAt = e.StartAt.Add(in.Duration)
 	}
 	if in.Description != "" {
 		e.Description = in.Description
 	}
-	if in.RemindDuration != 0 {
-		e.RemindDuration = in.RemindDuration
-	}
+	e.RemindAt = e.StartAt.Add(-in.RemindDuration)
 
 	return e
 }

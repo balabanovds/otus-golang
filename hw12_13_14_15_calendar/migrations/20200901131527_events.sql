@@ -5,11 +5,11 @@ create extension if not exists "uuid-ossp";
 create table events (
     id serial primary key,
     title varchar(256) not null,
-    start_at timestamp,
-    end_at timestamp,
+    start_at timestamptz,
+    end_at timestamptz,
     description text,
     user_id int,
-    remind_at timestamp,
+    remind_at timestamptz,
     created_at timestamp default now()
 );
 

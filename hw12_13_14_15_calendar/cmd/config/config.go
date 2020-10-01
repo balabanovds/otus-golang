@@ -26,8 +26,10 @@ func New(filename string) *Config {
 }
 
 func (c *Config) Unmarshal(cfg interface{}) error {
-	if err := c.k.Load(file.Provider(c.filename), toml.Parser()); err != nil {
-		return err
+	if c.filename != "" {
+		if err := c.k.Load(file.Provider(c.filename), toml.Parser()); err != nil {
+			return err
+		}
 	}
 
 	if err := c.k.Load(env.Provider(envPrefix, "_", envCallback), nil); err != nil {
