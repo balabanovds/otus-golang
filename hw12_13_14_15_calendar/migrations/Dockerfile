@@ -5,6 +5,7 @@ FROM debian
 WORKDIR /app
 COPY --from=builder /go/bin/goose .
 COPY ./migrations .
+COPY ./scripts/migrate.sh .
 RUN chmod 744 migrate.sh
-ENTRYPOINT [ "/app/migrate.sh" ]
-CMD ["up"]
+#ENTRYPOINT [ "/app/migrate.sh" ]
+CMD ["/app/migrate.sh"]

@@ -5,8 +5,6 @@ services:
     build:
       context: ..
       dockerfile: ./deployments/Dockerfile.tests
-    depends_on:
-      - db_migrate
     environment:
       CAL_HTTP_HOST: localhost
       CAL_HTTP_PORT: ${CAL_HTTP_PORT}
@@ -18,21 +16,9 @@ services:
     ports:
       - '${CAL_HTTP_PORT}:${CAL_HTTP_PORT}'
     networks:
-      backend:
-        aliases:
-          - tests
-  db:
-    volumes:
-      - dbdata_test:/var/lib/postgresql/data
-    ports:
-      - '5432:5432'
-  mq:
-    restart: "no"
-    command:
-      - /bin/true
-    depends_on:
-      - integration-tests
+      - test_bridge
 
-volumes:
-  dbdata_test:
-
+networks:
+  ntw:
+    external:
+      name: cal_bridge

@@ -1,3 +1,97 @@
+$ make integration-tests
+sh ./scripts/tests-run.sh
+Creating docker network cal_bridge
+a0a905b4f0b21325b98d59b2d7ccef461c4e566decb9d052ac36c749464be717
+Creating volume "tests_dbdata" with default driver
+Building db_migrate
+Step 1/9 : FROM golang:1.14 as builder
+ ---> d6747a138341
+Step 2/9 : RUN go get -u github.com/pressly/goose/cmd/goose
+ ---> Using cache
+ ---> 3f73870a8f72
+Step 3/9 : FROM debian
+ ---> f6dcff9b59af
+Step 4/9 : WORKDIR /app
+ ---> Using cache
+ ---> 0ff33e68be3f
+Step 5/9 : COPY --from=builder /go/bin/goose .
+ ---> Using cache
+ ---> 8242e30891a6
+Step 6/9 : COPY ./migrations .
+ ---> Using cache
+ ---> 4449616eb284
+Step 7/9 : COPY ./scripts/migrate.sh .
+ ---> Using cache
+ ---> 356213ace000
+Step 8/9 : RUN chmod 744 migrate.sh
+ ---> Using cache
+ ---> 83ccba80b18b
+Step 9/9 : CMD ["/app/migrate.sh"]
+ ---> Using cache
+ ---> e30bfc5010cc
+Successfully built e30bfc5010cc
+Successfully tagged tests_db_migrate:latest
+Creating tests_db_1 ... done
+Creating tests_mq_1 ... done
+Creating tests_db_migrate_1 ... done
+WARNING: Found orphan containers (tests_db_1, tests_mq_1, tests_db_migrate_1) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+Building integration-tests
+Step 1/7 : FROM golang:1.14
+ ---> d6747a138341
+Step 2/7 : WORKDIR /app
+ ---> Using cache
+ ---> b9c369c8d4b3
+Step 3/7 : COPY . .
+ ---> 958cffcb232d
+Step 4/7 : COPY ./scripts/tests-launch-inside-container.sh .
+ ---> 4653c4cdfde7
+Step 5/7 : RUN chmod 744 tests-launch-inside-container.sh
+ ---> Running in 650fedbf9c42
+Removing intermediate container 650fedbf9c42
+ ---> 9740765b1826
+Step 6/7 : RUN go test -i --tags=integration /app/internal/tests/integration/...
+ ---> Running in 173f2ee14ab5
+go: downloading github.com/knadh/koanf v0.12.0
+go: downloading github.com/jackc/pgx/v4 v4.8.1
+go: downloading github.com/jmoiron/sqlx v1.2.0
+go: downloading github.com/jinzhu/now v1.1.1
+go: downloading go.uber.org/zap v1.16.0
+go: downloading github.com/justinas/alice v1.2.0
+go: downloading github.com/stretchr/testify v1.6.1
+go: downloading github.com/pelletier/go-toml v1.7.0
+go: downloading github.com/fsnotify/fsnotify v1.4.9
+go: downloading github.com/mitchellh/mapstructure v1.3.3
+go: downloading github.com/pmezard/go-difflib v1.0.0
+go: downloading gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
+go: downloading github.com/davecgh/go-spew v1.1.1
+go: downloading go.uber.org/atomic v1.6.0
+go: downloading go.uber.org/multierr v1.5.0
+go: downloading github.com/jackc/pgtype v1.4.2
+go: downloading golang.org/x/xerrors v0.0.0-20191204190536-9bdfabe68543
+go: downloading golang.org/x/sys v0.0.0-20200331124033-c3d80250170d
+go: downloading github.com/jackc/pgproto3 v1.1.0
+go: downloading github.com/jackc/pgconn v1.6.4
+go: downloading github.com/jackc/pgio v1.0.0
+go: downloading github.com/jackc/pgpassfile v1.0.0
+go: downloading github.com/jackc/pgservicefile v0.0.0-20200714003250-2b9c44734f2b
+go: downloading golang.org/x/crypto v0.0.0-20200622213623-75b288015ac9
+go: downloading github.com/jackc/chunkreader v1.0.0
+go: downloading golang.org/x/text v0.3.3
+go: downloading github.com/jackc/pgproto3/v2 v2.0.2
+go: downloading github.com/jackc/chunkreader/v2 v2.0.1
+go: downloading github.com/go-sql-driver/mysql v1.4.0
+go: downloading github.com/lib/pq v1.3.0
+go: downloading github.com/mattn/go-sqlite3 v1.9.0
+Removing intermediate container 173f2ee14ab5
+ ---> c6e229ebec50
+Step 7/7 : CMD ["/app/tests-launch-inside-container.sh"]
+ ---> Running in 450523d27d9d
+Removing intermediate container 450523d27d9d
+ ---> 4328ce1f4237
+Successfully built 4328ce1f4237
+Successfully tagged tests_integration-tests:latest
+Creating tests_integration-tests_1 ... done
+Attaching to tests_integration-tests_1
 integration-tests_1  | === RUN   TestListEvents
 integration-tests_1  | === RUN   TestListEvents//yea/2020/day/3
 integration-tests_1  | === RUN   TestListEvents//year/2020a/day/3
@@ -11,13 +105,13 @@ integration-tests_1  | === RUN   TestListEvents//year/2020/week/40
 integration-tests_1  | === RUN   TestListEvents//year/2020/week/20
 integration-tests_1  | === RUN   TestListEvents//year/2020/month/9
 integration-tests_1  | === RUN   TestListEvents//year/2020/month/11
-integration-tests_1  | --- PASS: TestListEvents (0.09s)
+integration-tests_1  | --- PASS: TestListEvents (0.15s)
 integration-tests_1  |     --- PASS: TestListEvents//yea/2020/day/3 (0.00s)
-integration-tests_1  |     --- PASS: TestListEvents//year/2020a/day/3 (0.01s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020a/day/3 (0.00s)
 integration-tests_1  |     --- PASS: TestListEvents//year/2020/day/3q (0.00s)
 integration-tests_1  |     --- PASS: TestListEvents//year/2020/day/400 (0.00s)
 integration-tests_1  |     --- PASS: TestListEvents//year/2020/week/100 (0.00s)
-integration-tests_1  |     --- PASS: TestListEvents//year/2020/month/100 (0.00s)
+integration-tests_1  |     --- PASS: TestListEvents//year/2020/month/100 (0.01s)
 integration-tests_1  |     --- PASS: TestListEvents//year/2020/day/272 (0.00s)
 integration-tests_1  |     --- PASS: TestListEvents//year/2020/day/300 (0.00s)
 integration-tests_1  |     --- PASS: TestListEvents//year/2020/week/40 (0.00s)
@@ -25,13 +119,24 @@ integration-tests_1  |     --- PASS: TestListEvents//year/2020/week/20 (0.00s)
 integration-tests_1  |     --- PASS: TestListEvents//year/2020/month/9 (0.00s)
 integration-tests_1  |     --- PASS: TestListEvents//year/2020/month/11 (0.00s)
 integration-tests_1  | === RUN   TestCreateEvent
-integration-tests_1  | --- PASS: TestCreateEvent (0.04s)
+integration-tests_1  | --- PASS: TestCreateEvent (0.06s)
 integration-tests_1  | === RUN   TestGetEvent
-integration-tests_1  | --- PASS: TestGetEvent (0.04s)
+integration-tests_1  | --- PASS: TestGetEvent (0.05s)
 integration-tests_1  | === RUN   TestUpdateEvent
-integration-tests_1  | --- PASS: TestUpdateEvent (0.04s)
+integration-tests_1  | --- PASS: TestUpdateEvent (0.07s)
 integration-tests_1  | === RUN   TestDeleteEvent
-integration-tests_1  | --- PASS: TestDeleteEvent (0.04s)
+integration-tests_1  | --- PASS: TestDeleteEvent (0.05s)
 integration-tests_1  | PASS
-integration-tests_1  | ok       github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/tests/integration    0.295s
+integration-tests_1  | ok  	github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/tests/integration	0.471s
 tests_integration-tests_1 exited with code 0
+Stopping tests_db_1 ... done
+Stopping tests_mq_1 ... done
+WARNING: Found orphan containers (tests_integration-tests_1) for this project. If you removed or renamed this service in your compose file, you can run this command with the --remove-orphans flag to clean it up.
+Removing tests_db_migrate_1 ... done
+Removing tests_db_1         ... done
+Removing tests_mq_1         ... done
+Network cal_bridge is external, skipping
+Removing docker network cal_bridge
+cal_bridge
+Removing docker volume tests_dbdata
+tests_dbdata

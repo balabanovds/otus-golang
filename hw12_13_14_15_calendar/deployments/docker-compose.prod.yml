@@ -22,7 +22,7 @@ services:
       - '${CAL_HTTP_PORT}:${CAL_HTTP_PORT}'
       - '${CAL_GRPC_PORT}:${CAL_GRPC_PORT}'
     networks:
-      backend:
+      backbone:
         aliases:
           - calendar
   sheduler:
@@ -44,7 +44,7 @@ services:
       CAL_RMQ_USER: ${CAL_RMQ_USER}
       CAL_RMQ_PASSWORD: ${CAL_RMQ_PASSWORD}
     networks:
-      backend:
+      backbone:
         aliases:
           - scheduler
   sender:
@@ -60,7 +60,7 @@ services:
       CAL_RMQ_USER: ${CAL_RMQ_USER}
       CAL_RMQ_PASSWORD: ${CAL_RMQ_PASSWORD}
     networks:
-      backend:
+      backbone:
         aliases:
           - sender
 

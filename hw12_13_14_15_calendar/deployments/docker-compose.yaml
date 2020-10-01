@@ -9,7 +9,10 @@ services:
         environment:
             POSTGRES_PASSWORD: ${CAL_STORAGE_PASSWORD}
         networks:
-            backend:
+            backbone:
+                aliases:
+                    - db
+            test_bridge:
                 aliases:
                     - db
     db_migrate:
@@ -25,7 +28,8 @@ services:
             CAL_STORAGE_PASSWORD: ${CAL_STORAGE_PASSWORD}
             CAL_STORAGE_DBNAME: ${CAL_STORAGE_DBNAME}
         networks:
-            - backend
+            - backbone
+            - test_bridge
     mq:
         image: rabbitmq:3-management-alpine
         restart: always
@@ -35,12 +39,18 @@ services:
         ports:
             - '15672:15672'
         networks:
-            backend:
+            backbone:
+                aliases:
+                    - mq
+            test_bridge:
                 aliases:
                     - mq
 volumes:
     dbdata:
 
 networks:
-    backend:
+    backbone:
         driver: bridge
+    test_bridge:
+        external:
+            name: cal_bridge

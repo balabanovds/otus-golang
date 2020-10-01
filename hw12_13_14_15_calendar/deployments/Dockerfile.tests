@@ -1,5 +1,7 @@
 FROM golang:1.14
 WORKDIR /app
 COPY . .
+COPY ./scripts/tests-launch-inside-container.sh .
+RUN chmod 744 tests-launch-inside-container.sh
 RUN go test -i --tags=integration /app/internal/tests/integration/...
-CMD go test -v --tags=integration /app/internal/tests/integration/...
+CMD ["/app/tests-launch-inside-container.sh"]
