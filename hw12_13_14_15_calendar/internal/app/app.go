@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -17,9 +18,9 @@ const (
 type ListFunc func(ctx context.Context, year, day int) (models.EventsList, error)
 
 type Application interface {
-	CreateEvent(ctx context.Context, event models.IncomingEvent) (models.Event, error)
+	CreateEvent(ctx context.Context, event server.IncomingEvent) (models.Event, error)
 	GetEvent(ctx context.Context, id int) (models.Event, error)
-	UpdateEvent(ctx context.Context, id int, event models.IncomingEvent) (models.Event, error)
+	UpdateEvent(ctx context.Context, id int, event server.IncomingEvent) (models.Event, error)
 	DeleteEvent(ctx context.Context, id int) error
 	EventListForDay(ctx context.Context, year, day int) (models.EventsList, error)
 	EventListForWeek(ctx context.Context, year, week int) (models.EventsList, error)
@@ -34,7 +35,7 @@ func New(storage storage.IStorage) *App {
 	return &App{storage}
 }
 
-func (a *App) CreateEvent(ctx context.Context, in models.IncomingEvent) (models.Event, error) {
+func (a *App) CreateEvent(ctx context.Context, in server.IncomingEvent) (models.Event, error) {
 	ctxID, ok := ctx.Value(CtxKeyUserID).(int)
 	if !ok {
 		return models.Event{}, ErrAppGeneral
@@ -50,7 +51,7 @@ func (a *App) GetEvent(ctx context.Context, id int) (models.Event, error) {
 	return a.storage.Events().Get(ctx, id)
 }
 
-func (a *App) UpdateEvent(ctx context.Context, id int, in models.IncomingEvent) (models.Event, error) {
+func (a *App) UpdateEvent(ctx context.Context, id int, in server.IncomingEvent) (models.Event, error) {
 	if err := a.checkUserID(ctx, id); err != nil {
 		return models.Event{}, err
 	}

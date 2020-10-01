@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/cmd/config"
 	a "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
@@ -22,11 +23,19 @@ import (
 
 type Server struct {
 	app a.Application
-	cfg server.Config
+	cfg config.GRPC
 	srv *grpc.Server
 }
 
-func NewServer(app a.Application, cfg server.Config) *Server {
+func New(app a.Application, cfg config.GRPC) server.IServer {
+	return &Server{
+		app: app,
+		cfg: cfg,
+		srv: grpc.NewServer(grpc.UnaryInterceptor(logInterceptor)),
+	}
+}
+
+func NewEventsServiceServer(app a.Application, cfg config.GRPC) EventsServiceServer {
 	return &Server{
 		app: app,
 		cfg: cfg,
@@ -48,9 +57,14 @@ func (s *Server) Start() error {
 	return s.srv.Serve(lsn)
 }
 
-func (s *Server) Stop() error {
+func (s *Server) Close() error {
 	s.srv.GracefulStop()
+	zap.L().Info("close grpc server")
 	return nil
+}
+
+func (s *Server) String() string {
+	return "grpc server"
 }
 
 func (s *Server) CreateEvent(ctx context.Context, req *CreateEventRequest) (*Event, error) {
@@ -165,7 +179,7 @@ func copyEventToProto(event models.Event) (*Event, error) {
 	}, nil
 }
 
-func copyProtoToIncoming(from *IncomingEvent) (*models.IncomingEvent, error) {
+func copyProtoToIncoming(from *IncomingEvent) (*server.IncomingEvent, error) {
 	startTime, err := ptypes.Timestamp(from.StartTime)
 	if err != nil {
 		return nil, err
@@ -178,7 +192,7 @@ func copyProtoToIncoming(from *IncomingEvent) (*models.IncomingEvent, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &models.IncomingEvent{
+	return &server.IncomingEvent{
 		Title:          from.Title,
 		StartTime:      startTime,
 		Duration:       duration,

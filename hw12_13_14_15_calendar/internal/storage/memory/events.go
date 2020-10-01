@@ -93,6 +93,35 @@ func (s *eventStorage) ListForMonth(_ context.Context, date time.Time) models.Ev
 	})
 }
 
+func (s *eventStorage) ListBeforeDate(ctx context.Context, date time.Time) []models.Event {
+	s.st.mu.Lock()
+	defer s.st.mu.Unlock()
+
+	var list []models.Event
+	for _, ev := range s.st.data {
+		if ev.StartTime.UnixNano() < date.UnixNano() {
+			list = append(list, ev)
+		}
+	}
+
+	return list
+}
+
+func (s *eventStorage) ListByReminderBetweenDates(ctx context.Context, startDate, endDate time.Time) []models.Event {
+	s.st.mu.Lock()
+	defer s.st.mu.Unlock()
+
+	var list []models.Event
+	for _, ev := range s.st.data {
+		remindDate := ev.StartTime.Add(-ev.RemindDuration)
+		if remindDate.UnixNano() > startDate.UnixNano() && remindDate.UnixNano() < endDate.UnixNano() {
+			list = append(list, ev)
+		}
+	}
+
+	return list
+}
+
 func (s *eventStorage) filterEvents(
 	date time.Time,
 	cmp func(newTime time.Time, exTime time.Time) bool,

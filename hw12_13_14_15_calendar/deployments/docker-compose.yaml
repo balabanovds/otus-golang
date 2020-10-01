@@ -1,21 +1,32 @@
-version: "3"
+version: '3'
 
 services:
-  db:
-    image: postgres:12-alpine
-    restart: always
-    volumes:
-      - dbdata:/var/lib/postgresql/data
-    environment:
-      POSTGRES_PASSWORD: ${CAL_POSTGRES_PASSWORD}
-      ENV_1: ${CAL_STORAGE_DSN}
-    ports:
-      - '5432:5432'
-    networks:
-      - backend
+    db:
+        image: postgres:12-alpine
+        restart: always
+        volumes:
+            - dbdata:/var/lib/postgresql/data
+        environment:
+            POSTGRES_PASSWORD: ${CAL_STORAGE_PASSWORD}
+        ports:
+            - '5432:5432'
+        networks:
+            - backend
+    mq:
+        image: rabbitmq:3-management-alpine
+        restart: always
+        environment:
+            RABBITMQ_DEFAULT_USER: ${CAL_RMQ_USER}
+            RABBITMQ_DEFAULT_PASS: ${CAL_RMQ_PASSWORD}
+        ports:
+            - '5672:5672'
+            - '15672:15672'
+        networks:
+            - backend
+
 volumes:
-  dbdata:
+    dbdata:
 
 networks:
-  backend:
-    driver: bridge
+    backend:
+        driver: bridge

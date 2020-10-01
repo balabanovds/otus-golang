@@ -1,24 +1,25 @@
-package storage
+package server
 
 import (
 	"math/rand"
 	"time"
-
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
 )
 
-var id = 0
+type IncomingEvent struct {
+	Title          string        `json:"title"`
+	StartTime      time.Time     `db:"start_at" json:"start_time"`
+	Duration       time.Duration `json:"duration"`
+	Description    string        `json:"description"`
+	RemindDuration time.Duration `json:"remind_duration"`
+}
 
-func NewTestEvent(start time.Time) models.Event {
-	id++
-	return models.Event{
-		ID:             id,
+func NewTestIncomingEvent(start time.Time) IncomingEvent {
+	return IncomingEvent{
 		Title:          RandString(10),
 		StartTime:      start,
 		Duration:       1 * time.Hour,
 		Description:    RandString(30),
-		UserID:         1,
-		RemindDuration: 1 * time.Hour,
+		RemindDuration: 0,
 	}
 }
 

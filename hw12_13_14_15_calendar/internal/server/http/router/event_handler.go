@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	a "github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/app"
-	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/models"
+	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/server"
 	"github.com/balabanovds/otus-golang/hw12_13_14_15_calendar/internal/storage"
 )
 
@@ -67,7 +67,7 @@ func (h *eventHandler) handleCreateEvent(w http.ResponseWriter, r *http.Request)
 			serverError(w, err)
 		}
 	}()
-	var incomingEvent models.IncomingEvent
+	var incomingEvent server.IncomingEvent
 	err := json.NewDecoder(r.Body).Decode(&incomingEvent)
 	if err != nil {
 		clientError(w, r, http.StatusBadRequest, err)
@@ -100,7 +100,7 @@ func (h *eventHandler) handleUpdateEvent(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
-	var incomingEvent models.IncomingEvent
+	var incomingEvent server.IncomingEvent
 	err = json.NewDecoder(r.Body).Decode(&incomingEvent)
 	if err != nil {
 		clientError(w, r, http.StatusBadRequest, err)

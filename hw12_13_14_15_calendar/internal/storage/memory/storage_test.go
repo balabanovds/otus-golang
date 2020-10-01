@@ -69,4 +69,14 @@ func TestStorage(t *testing.T) {
 
 		require.Len(t, got.List, 7)
 	})
+
+	t.Run("list events before date", func(t *testing.T) {
+		pt, err := time.Parse(layoutISO, "2020-08-31")
+		require.NoError(t, err)
+		st := NewTestStorage(pt, 50)
+
+		got := st.Events().ListBeforeDate(nil, pt.AddDate(0, 0, 3))
+
+		require.Len(t, got, 3)
+	})
 }

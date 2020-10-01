@@ -1,5 +1,13 @@
-build: test
+build: test build-calendar build-scheduler build-sender
+
+build-calendar:
 	go build -o ./bin/calendar ./cmd/calendar
+
+build-scheduler:
+	go build -o ./bin/calendar_scheduler ./cmd/scheduler
+
+build-sender:
+	go build -o ./bin/calendar_sender ./cmd/sender
 
 test: lint
 	go test -race ./internal/...
@@ -16,7 +24,7 @@ deploy-start:
 	docker-compose -f deployments/docker-compose.yaml -p cal up -d
 
 deploy-stop:
-	docker-compose -f deployments/docker-compose.yaml -p cal down -d
+	docker-compose -f deployments/docker-compose.yaml -p cal down
 
 migrate-up:
 	goose -dir migrations postgres $(CAL_STORAGE_DSN) up
