@@ -17,7 +17,7 @@ func TestApp_CreateEvent(t *testing.T) {
 	ctx := context.WithValue(context.Background(), app.CtxKeyUserID, 1)
 	inEvent := server.IncomingEvent{
 		Title:          "test title",
-		StartTime:      time.Now(),
+		StartAt:        time.Now(),
 		Duration:       300,
 		Description:    "",
 		RemindDuration: 0,

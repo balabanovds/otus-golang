@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+  integration-tests:
+    build:
+      context: ..
+      dockerfile: ./deployments/Dockerfile.tests
+    environment:
+      CAL_HTTP_HOST: localhost
+      CAL_HTTP_PORT: ${CAL_HTTP_PORT}
+      CAL_STORAGE_HOST: db
+      CAL_STORAGE_PORT: 5432
+      CAL_STORAGE_USER: ${CAL_STORAGE_USER}
+      CAL_STORAGE_PASSWORD: ${CAL_STORAGE_PASSWORD}
+      CAL_STORAGE_DBNAME: ${CAL_STORAGE_DBNAME}
+    ports:
+      - '${CAL_HTTP_PORT}:${CAL_HTTP_PORT}'
+    networks:
+      - test_bridge
+
+networks:
+  ntw:
+    external:
+      name: cal_bridge

@@ -79,7 +79,7 @@ func (a *App) EventListForDay(ctx context.Context, year, day int) (models.Events
 		return models.NewEventsList(nil), ErrDateFormat
 	}
 	yearStart := time.Date(year, time.January, 1, 0, 0, 0, 0, time.Local)
-	date := yearStart.AddDate(0, 0, day)
+	date := yearStart.AddDate(0, 0, day-1)
 
 	return a.storage.Events().ListForDay(ctx, date), nil
 }
@@ -91,7 +91,7 @@ func (a *App) EventListForWeek(ctx context.Context, year, week int) (models.Even
 		return models.NewEventsList(nil), ErrDateFormat
 	}
 	yearStart := time.Date(year, time.January, 1, 0, 0, 0, 0, time.Local)
-	date := yearStart.Add(time.Duration(week*7*24) * time.Hour)
+	date := yearStart.AddDate(0, 0, (week-1)*7)
 
 	return a.storage.Events().ListForWeek(ctx, date), nil
 }

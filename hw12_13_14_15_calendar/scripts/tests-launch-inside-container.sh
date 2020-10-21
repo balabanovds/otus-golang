@@ -1,0 +1,3 @@
+#!/bin/sh
+
+go test -v --tags=integration /app/internal/tests/integration/...

@@ -14,7 +14,7 @@ func TestEvent_CopyFromIncoming(t *testing.T) {
 		Title: "title",
 	}
 	in := server.IncomingEvent{
-		StartTime: time.Now(),
+		StartAt: time.Now(),
 	}
 
 	event.CopyFromIncoming(in)

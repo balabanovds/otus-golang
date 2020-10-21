@@ -1,0 +1,15 @@
+FROM golang:1.14-alpine as builder
+WORKDIR /app
+COPY . .
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main ./cmd/sender
+
+### second stage
+FROM alpine:3
+ENV CAL_RMQ_HOST localhost
+ENV CAL_RMQ_PORT 5672
+ENV CAL_RMQ_USER guest
+ENV CAL_RMQ_PASSWORD guest
+WORKDIR /app
+COPY --from=builder /app/main .
+COPY ./configs .
+CMD [ "./main", "--config", "config.toml" ]

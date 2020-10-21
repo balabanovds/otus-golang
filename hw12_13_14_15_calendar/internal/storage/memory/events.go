@@ -16,9 +16,7 @@ func newEventStorage(st *Storage) *eventStorage {
 	return &eventStorage{st}
 }
 
-var (
-	id = 0
-)
+var id = 0
 
 func nextID() int {
 	id++
@@ -30,8 +28,8 @@ func (s *eventStorage) Create(_ context.Context, event models.Event) (models.Eve
 	defer s.st.mu.Unlock()
 
 	for _, ev := range s.st.data {
-		if ev.StartTime.UnixNano() < event.StartTime.UnixNano() &&
-			ev.StartTime.Add(ev.Duration).UnixNano() > event.StartTime.UnixNano() {
+		if ev.StartAt.UnixNano() < event.StartAt.UnixNano() &&
+			ev.EndAt.UnixNano() > event.StartAt.UnixNano() {
 			return models.Event{}, storage.ErrEventExists
 		}
 	}
@@ -93,13 +91,13 @@ func (s *eventStorage) ListForMonth(_ context.Context, date time.Time) models.Ev
 	})
 }
 
-func (s *eventStorage) ListBeforeDate(ctx context.Context, date time.Time) []models.Event {
+func (s *eventStorage) ListBeforeDate(_ context.Context, date time.Time) []models.Event {
 	s.st.mu.Lock()
 	defer s.st.mu.Unlock()
 
 	var list []models.Event
 	for _, ev := range s.st.data {
-		if ev.StartTime.UnixNano() < date.UnixNano() {
+		if ev.StartAt.UnixNano() < date.UnixNano() {
 			list = append(list, ev)
 		}
 	}
@@ -107,13 +105,13 @@ func (s *eventStorage) ListBeforeDate(ctx context.Context, date time.Time) []mod
 	return list
 }
 
-func (s *eventStorage) ListByReminderBetweenDates(ctx context.Context, startDate, endDate time.Time) []models.Event {
+func (s *eventStorage) ListByReminderBetweenDates(_ context.Context, startDate, endDate time.Time) []models.Event {
 	s.st.mu.Lock()
 	defer s.st.mu.Unlock()
 
 	var list []models.Event
 	for _, ev := range s.st.data {
-		remindDate := ev.StartTime.Add(-ev.RemindDuration)
+		remindDate := ev.RemindAt
 		if remindDate.UnixNano() > startDate.UnixNano() && remindDate.UnixNano() < endDate.UnixNano() {
 			list = append(list, ev)
 		}
@@ -132,7 +130,7 @@ func (s *eventStorage) filterEvents(
 	list := make([]models.Event, 0)
 
 	for _, ev := range s.st.data {
-		if cmp(date, ev.StartTime) {
+		if cmp(date, ev.StartAt) {
 			list = append(list, ev)
 		}
 	}

@@ -201,7 +201,7 @@ func TestServer_UpdateEvent(t *testing.T) {
 				require.Equal(t, tst.errCode, er.Code())
 				return
 			}
-			require.Equal(t, tst.req.Event.StartTime.Nanos, resp.StartTime.Nanos)
+			require.Equal(t, tst.req.Event.GetStartAt().Nanos, resp.StartAt.Nanos)
 		})
 	}
 }

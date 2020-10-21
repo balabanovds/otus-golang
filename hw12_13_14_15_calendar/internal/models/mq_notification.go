@@ -13,7 +13,7 @@ func NewMQNotification(e Event) MQNotification {
 	return MQNotification{
 		EventID: e.ID,
 		Title:   e.Title,
-		Date:    e.StartTime,
+		Date:    e.StartAt,
 		UserID:  e.UserID,
 	}
 }

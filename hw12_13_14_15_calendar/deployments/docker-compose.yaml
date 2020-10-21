@@ -8,10 +8,28 @@ services:
             - dbdata:/var/lib/postgresql/data
         environment:
             POSTGRES_PASSWORD: ${CAL_STORAGE_PASSWORD}
-        ports:
-            - '5432:5432'
         networks:
-            - backend
+            backbone:
+                aliases:
+                    - db
+            test_bridge:
+                aliases:
+                    - db
+    db_migrate:
+        build:
+            context: ..
+            dockerfile: ./migrations/Dockerfile
+        depends_on:
+            - db
+        environment:
+            CAL_STORAGE_HOST: db
+            CAL_STORAGE_PORT: 5432
+            CAL_STORAGE_USER: ${CAL_STORAGE_USER}
+            CAL_STORAGE_PASSWORD: ${CAL_STORAGE_PASSWORD}
+            CAL_STORAGE_DBNAME: ${CAL_STORAGE_DBNAME}
+        networks:
+            - backbone
+            - test_bridge
     mq:
         image: rabbitmq:3-management-alpine
         restart: always
@@ -19,14 +37,20 @@ services:
             RABBITMQ_DEFAULT_USER: ${CAL_RMQ_USER}
             RABBITMQ_DEFAULT_PASS: ${CAL_RMQ_PASSWORD}
         ports:
-            - '5672:5672'
             - '15672:15672'
         networks:
-            - backend
-
+            backbone:
+                aliases:
+                    - mq
+            test_bridge:
+                aliases:
+                    - mq
 volumes:
     dbdata:
 
 networks:
-    backend:
+    backbone:
         driver: bridge
+    test_bridge:
+        external:
+            name: cal_bridge

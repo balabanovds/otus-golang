@@ -21,16 +21,16 @@ service EventsService {
 message Event {
   int64 ID = 1;
   string Title = 2;
-  google.protobuf.Timestamp StartTime = 3;
-  google.protobuf.Duration Duration = 4;
+  google.protobuf.Timestamp StartAt = 3;
+  google.protobuf.Timestamp EndAt = 4;
   string Description = 5;
   int64 UserID = 6;
-  google.protobuf.Duration RemindDuration = 7;
+  google.protobuf.Timestamp RemindAt = 7;
 }
 
 message IncomingEvent {
   string Title = 1;
-  google.protobuf.Timestamp StartTime = 2;
+  google.protobuf.Timestamp StartAt = 2;
   google.protobuf.Duration Duration = 3;
   string Description = 4;
   google.protobuf.Duration RemindDuration = 5;

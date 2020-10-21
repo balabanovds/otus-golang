@@ -163,24 +163,32 @@ func (s *Server) runEventListFunc(ctx context.Context, req *EventListRequest, fn
 }
 
 func copyEventToProto(event models.Event) (*Event, error) {
-	startTime, err := ptypes.TimestampProto(event.StartTime)
+	startAt, err := ptypes.TimestampProto(event.StartAt)
+	if err != nil {
+		return nil, err
+	}
+	endAt, err := ptypes.TimestampProto(event.EndAt)
+	if err != nil {
+		return nil, err
+	}
+	remindAt, err := ptypes.TimestampProto(event.RemindAt)
 	if err != nil {
 		return nil, err
 	}
 
 	return &Event{
-		ID:             int64(event.ID),
-		Title:          event.Title,
-		StartTime:      startTime,
-		Duration:       ptypes.DurationProto(event.Duration),
-		Description:    event.Description,
-		UserID:         int64(event.UserID),
-		RemindDuration: ptypes.DurationProto(event.RemindDuration),
+		ID:          int64(event.ID),
+		Title:       event.Title,
+		StartAt:     startAt,
+		EndAt:       endAt,
+		Description: event.Description,
+		UserID:      int64(event.UserID),
+		RemindAt:    remindAt,
 	}, nil
 }
 
 func copyProtoToIncoming(from *IncomingEvent) (*server.IncomingEvent, error) {
-	startTime, err := ptypes.Timestamp(from.StartTime)
+	startTime, err := ptypes.Timestamp(from.StartAt)
 	if err != nil {
 		return nil, err
 	}
@@ -194,7 +202,7 @@ func copyProtoToIncoming(from *IncomingEvent) (*server.IncomingEvent, error) {
 	}
 	return &server.IncomingEvent{
 		Title:          from.Title,
-		StartTime:      startTime,
+		StartAt:        startTime,
 		Duration:       duration,
 		Description:    from.Description,
 		RemindDuration: remDuration,
