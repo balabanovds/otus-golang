@@ -69,6 +69,10 @@ func (p *parser) rate(n int) []string {
 		return p.rating[i].counter > p.rating[j].counter
 	})
 
+	if n > len(p.rating) {
+		n = len(p.rating)
+	}
+
 	r := make([]string, 0, n)
 	for i := 0; i < n; i++ {
 		r = append(r, p.rating[i].value)
