@@ -62,6 +62,21 @@ func TestTop10(t *testing.T) {
 		assert.Subset(t, expected, top)
 	})
 
+	t.Run("less than 10", func(t *testing.T) {
+		input := "a b c"
+		want := []string{"a", "b", "c"}
+		got, err := Top10(input, true)
+		assert.NoError(t, err)
+		assert.Subset(t, got, want)
+	})
+
+	t.Run("deutcsh", func(t *testing.T) {
+		input := "Schulabgänger? Schulabgänger? Student? Absolvent? Berufserfahrener?"
+		want := []string{"schulabgänger", "absolvent", "berufserfahrener", "student"}
+		got, err := Top10(input, true)
+		assert.NoError(t, err)
+		assert.Subset(t, got, want)
+	})
 }
 
 func TestNewParser(t *testing.T) {
